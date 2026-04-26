@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { Routes, Route, Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { 
@@ -57,6 +57,15 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleHomeClick = () => {
     if (pathname === '/') {
@@ -67,7 +76,7 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
   };
 
   const navLinks = [
-    { name: 'A Empresa', path: '/' },
+    { name: 'Home', path: '/' },
     { name: 'Jornada do Cliente', path: '/jornada' },
     { name: 'Portfólio', path: '/portfolio' },
   ];
@@ -81,7 +90,13 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-2xl h-20 flex items-center justify-between px-6 md:px-16 border-b border-gray-100/50">
+      <nav 
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-16 border-b transition-all duration-500 ${
+          isScrolled 
+            ? 'h-16 bg-white/70 backdrop-blur-xl border-gray-100/30 shadow-sm' 
+            : 'h-24 bg-white/80 backdrop-blur-2xl border-gray-100/50'
+        }`}
+      >
         <div 
           className="font-display text-2xl font-extrabold cursor-pointer tracking-tighter"
           onClick={handleHomeClick}
@@ -96,7 +111,9 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
               <Link
                 key={link.path}
                 to={link.path}
-                className="text-[11px] font-bold uppercase tracking-[0.2em] hover:text-berti-gold transition-all duration-500 cursor-pointer relative group"
+                className={`text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-500 cursor-pointer relative group ${
+                  pathname === link.path ? 'text-berti-gold' : 'text-berti-ink hover:text-berti-gold'
+                }`}
               >
                 {link.name}
                 <span className={`absolute -bottom-1 left-0 h-[1px] bg-berti-gold transition-all duration-500 ${pathname === link.path ? 'w-full' : 'w-0 group-hover:w-full'}`} />
@@ -115,10 +132,16 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
 
           <div className="flex items-center gap-3">
             <button 
-              onClick={onAdminClick}
-              className="px-4 md:px-8 py-3 bg-berti-dark text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-berti-sage transition-all flex items-center gap-3 shadow-lg shadow-berti-dark/5"
+              onClick={() => window.location.href = `https://wa.me/5541991836651`}
+              className={`hidden lg:flex px-8 py-3.5 bg-berti-gold text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-berti-dark transition-all items-center shadow-lg ${isScrolled ? 'scale-90' : 'scale-100'}`}
             >
-              <Lock size={12} className="text-berti-gold" /> <span className="hidden sm:inline">Portal do Cliente</span>
+              Solicitar Orçamento
+            </button>
+            <button 
+              onClick={onAdminClick}
+              className={`px-5 md:px-7 py-3.5 border border-gray-200 text-berti-ink text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-gray-50 flex items-center gap-2 transition-all ${isScrolled ? 'scale-90' : 'scale-100'}`}
+            >
+              <Lock size={12} className="text-berti-gold" /> <span className="hidden sm:inline">Portal</span>
             </button>
 
             {/* Mobile Menu Toggle */}
@@ -259,6 +282,18 @@ const HeroBackground = ({ src, alt }: { src: string; alt: string }) => {
   );
 };
 
+const PageTransition = ({ children }: { children: ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0, x: 20 }}
+    animate={{ opacity: 1, x: 0 }}
+    exit={{ opacity: 0, x: -20 }}
+    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+    className="w-full"
+  >
+    {children}
+  </motion.div>
+);
+
 const LoadingSpinner = () => (
   <motion.div 
     initial={{ opacity: 0 }}
@@ -367,63 +402,59 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
   return (
     <div className="bg-berti-light text-berti-ink">
       {/* 1. Hero Section - Alto Padrão + Técnica */}
-      <section ref={sections.hero} className="relative h-[98vh] flex items-center justify-center overflow-hidden">
+      <section ref={sections.hero} className="relative min-h-[100vh] flex flex-col items-center justify-end overflow-hidden pb-24 md:pb-32">
         <div className="absolute inset-0 z-0">
           <HeroBackground 
             src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" 
             alt="Arquitetura de Alto Padrão Berti" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-berti-ink/80 via-berti-ink/20 to-transparent" />
+          <div className="absolute inset-0 bg-berti-ink/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-berti-ink via-transparent to-transparent" />
         </div>
         
-        <div className="relative z-10 max-w-7xl w-full px-6 md:px-12 flex flex-col items-center text-center">
-          <div className="max-w-5xl flex flex-col items-center">
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-10 flex items-center gap-4 justify-center"
-            >
-              <span className="w-8 md:w-12 h-px bg-berti-gold/40"></span>
-              CURADORIA TÉCNICA PARA OBRAS DE ALTO PADRÃO
-              <span className="w-8 md:w-12 h-px bg-berti-gold/40"></span>
-            </motion.div>
+        <div className="relative z-10 max-w-7xl w-full px-6 md:px-12 flex flex-col items-center text-center mt-auto">
+          <div className="max-w-5xl flex flex-col items-center w-full">
             <motion.h1 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.2 }}
-              className="text-6xl md:text-[8rem] lg:text-[10rem] leading-[0.85] tracking-tightest mb-12 font-black text-white uppercase italic"
+              transition={{ duration: 1 }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.1] tracking-tight mb-10 font-bold text-white uppercase"
             >
-              Menos<br />
-              improviso.<br />
-              Mais<br />
-              controle.
+              Menos improviso.<br />
+              Mais controle na sua obra.
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="text-lg md:text-xl text-white/70 max-w-2xl mb-16 font-light leading-relaxed mx-auto"
+              transition={{ duration: 1, delay: 0.3 }}
+              className="text-lg md:text-xl lg:text-2xl text-white/90 max-w-4xl mb-16 font-light leading-relaxed mx-auto drop-shadow-md"
             >
-              A Berti conduz obras residenciais e comerciais com leitura técnica, planejamento estruturado e execução organizada. Transformamos complexidade em previsibilidade.
+              Você não precisa entender de obra.<br/>
+              Precisa de alguém que controle cada etapa e conduza suas decisões com segurança.
             </motion.p>
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center"
+              transition={{ duration: 1, delay: 0.5 }}
+              className="flex flex-col md:flex-row gap-4 justify-center w-full max-w-3xl"
             >
               <button 
                 onClick={() => window.location.href = `https://wa.me/5541991836651`}
-                className="px-12 py-5 bg-berti-gold text-white font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-white hover:text-berti-ink transition-all duration-500 shadow-2xl"
+                className="flex-1 px-10 py-5 bg-berti-gold text-white font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-white hover:text-berti-ink transition-all duration-300 shadow-xl"
               >
-                FALAR NO WHATSAPP
+                Falar no Whatsapp
               </button>
               <Link
-                to="/portfolio"
-                className="px-12 py-5 border border-white/30 text-white font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-white hover:text-berti-ink transition-all duration-500 flex items-center justify-center gap-3"
+                to="/jornada"
+                className="flex-1 px-10 py-5 bg-white text-berti-ink font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-gray-100 transition-all duration-300 shadow-xl flex items-center justify-center"
               >
-                VER PORTFÓLIO <span className="ml-2">›</span>
+                Como funciona
+              </Link>
+              <Link
+                to="/portfolio"
+                className="flex-1 px-10 py-5 border border-white/40 text-white font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-white hover:text-berti-ink transition-all duration-300 flex items-center justify-center gap-3 bg-berti-ink/20 backdrop-blur-sm"
+              >
+                Ver Portfólio
               </Link>
             </motion.div>
           </div>
@@ -432,102 +463,45 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
         <motion.div 
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-30 text-white flex flex-col items-center gap-4 cursor-pointer"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-40 text-white flex flex-col items-center gap-4 cursor-pointer"
         >
-          <div className="text-[9px] uppercase tracking-[0.4em] font-bold">INÍCIO</div>
-          <div className="w-[1px] h-16 bg-white" />
+          <div className="w-[1px] h-20 bg-white" />
         </motion.div>
       </section>
 
-      {/* 2. Faixa de Credibilidade */}
-      <section className="bg-berti-dark py-20 border-y border-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,_var(--color-berti-gold)_0%,_transparent_25%)] opacity-[0.03]"></div>
-        <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16">
-            <div className="border-l-0 border-white/10 px-4 sm:px-0">
-              <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 opacity-70">Expertise de Mercado</div>
-              <div className="text-white font-display text-2xl tracking-tighter font-extrabold flex items-baseline gap-2">
-                +14 <span className="text-sm font-light text-white/40 uppercase tracking-widest">Anos</span>
-              </div>
-              <div className="text-white/30 text-[9px] uppercase tracking-widest mt-2 font-medium">Desde 2012 em Curitiba</div>
-            </div>
-            <div className="lg:border-l lg:pl-12 border-white/10">
-              <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 opacity-70">Volume Executado</div>
-              <div className="text-white font-display text-2xl tracking-tighter font-extrabold flex items-baseline gap-2">
-                20 <span className="text-sm font-light text-white/40 uppercase tracking-widest">Mil m²</span>
-              </div>
-              <div className="text-white/30 text-[9px] uppercase tracking-widest mt-2 font-medium">De obras concluídas</div>
-            </div>
-            <div className="lg:border-l lg:pl-12 border-white/10">
-              <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 opacity-70">Curadoria Técnica</div>
-              <div className="text-white font-display text-2xl tracking-tighter font-extrabold uppercase">Precisão</div>
-              <div className="text-white/30 text-[9px] uppercase tracking-widest mt-2 font-medium">Inteligência Construtiva</div>
-            </div>
-            <div className="lg:border-l lg:pl-12 border-white/10">
-              <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.4em] mb-4 opacity-70">Abrangência</div>
-              <div className="text-white font-display text-2xl tracking-tighter font-extrabold uppercase">Global</div>
-              <div className="text-white/30 text-[9px] uppercase tracking-widest mt-2 font-medium">Curitiba e Região</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Quem Somos / Posicionamento */}
-      <section ref={sections.pos} className="py-40 px-6 md:px-12 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-20 items-center">
-             <div className="md:col-span-4 aspect-square bg-berti-ink p-12 flex flex-col justify-between shadow-2xl">
-                <div className="text-berti-gold font-display text-4xl italic">B<span className="text-white">.</span></div>
-                <div className="space-y-6">
-                   <div className="h-px w-12 bg-berti-gold/50"></div>
-                   <h3 className="text-white text-6xl font-extrabold leading-none tracking-tightest">Quem Somos?</h3>
-                </div>
-             </div>
-             <div className="md:col-span-8">
-                <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-12">Nossa Essência</div>
-                <h2 className="text-4xl md:text-6xl mb-12 leading-[1.1] tracking-tightest">A Berti transforma projetos em realidade com <br /><span className="italic font-serif font-light text-berti-sage/60">precisão e inteligência construtiva.</span></h2>
-                <div className="space-y-8">
-                  <p className="text-xl text-gray-500 font-light leading-relaxed">
-                    Com mais de 20.000 m² construídos ao longo de 14 anos de atuação, desenvolvemos um sistema que une planejamento eficiente, execução limpa e acompanhamento técnico em cada etapa da obra.
-                  </p>
-                  <p className="text-xl text-gray-500 font-light leading-relaxed">
-                    Nossa equipe atua com método, clareza e compromisso com o resultado final — entregando não apenas construções, mas soluções completas para quem valoriza tempo, investimento e qualidade.
-                  </p>
-                </div>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Como a Berti Atua (5 Etapas) */}
-      <section className="py-40 bg-berti-light border-y border-gray-100">
+      {/* 2. Como Funciona (Processo) */}
+      <section className="py-40 bg-berti-light border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
             <div className="lg:col-span-5 sticky top-32">
-              <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-8">Como Funciona</div>
-              <h2 className="text-5xl md:text-6xl mb-10 leading-[0.95]">Você não precisa dominar construção.<br /><span className="text-berti-sage/40">Precisa de uma condução segura.</span></h2>
-              <p className="text-lg text-gray-600 leading-relaxed font-light">
-                Na administração de obra, a Berti gerencia planejamento, fornecedores, equipes e rotina financeira da execução. O cliente acompanha tudo com clareza, sem precisar assumir a complexidade operacional da obra.
+              <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-8">Processo de Gestão</div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl mb-10 leading-[1] tracking-tight">Como a Berti <br />conduz seu projeto</h2>
+              <p className="text-xl text-gray-800 leading-relaxed font-light mt-6">
+                Toda obra segue etapas. <br />
+                <span className="font-medium text-berti-ink">O problema é quando elas não conversam entre si.</span>
+              </p>
+              <p className="text-lg text-gray-500 leading-relaxed font-light mt-6 border-l-2 border-berti-gold/30 pl-6">
+                Nosso papel é integrar projeto, suprimentos, finanças e execução no canteiro de obras para que nada saia do controle.
               </p>
             </div>
             
             <div className="lg:col-span-1 hidden lg:block"></div>
 
-            <div className="lg:col-span-6 space-y-2">
+            <div className="lg:col-span-6 space-y-4">
               {[
-                { step: "01", title: "Entendimento do projeto e do orçamento", desc: "A obra começa com leitura técnica, definição de escopo e orçamento estruturado por etapa, antes do início da execução." },
-                { step: "02", title: "Contratação e coordenação das equipes", desc: "A Berti organiza as frentes de trabalho, integra fornecedores e conduz a execução com alinhamento entre todos os envolvidos." },
-                { step: "03", title: "Prestação de contas e acompanhamento mensal", desc: "O cliente recebe medições, fotos, notas fiscais e evolução física da obra com transparência e controle contínuo." },
-                { step: "04", title: "Gestão técnica e fiscal da obra", desc: "Acompanhamos os processos que exigem critério técnico, documentação organizada e condução responsável ao longo da execução." },
-                { step: "05", title: "Entrega com obra organizada e documentada", desc: "A finalização acontece com validação técnica, padrão de entrega e documentação consolidada." }
+                { step: "01", title: "Análise técnica completa do projeto", desc: "Antes de iniciar, verificamos projetos de engenharia e arquitetura em busca de interferências e otimizações executivas." },
+                { step: "02", title: "Orçamento e cronograma estruturados", desc: "Definição do fluxo físico-financeiro real da obra para alinhar os desembolsos ao escopo construtivo." },
+                { step: "03", title: "Coordenação ativa das equipes", desc: "Mobilização e sincronização contínua das frentes de trabalho para evitar gargalos entre etapas produtivas." },
+                { step: "04", title: "Controle logístico de suprimentos", desc: "Equalização de propostas, compras com mapa de cotação e validação do recebimento diretamente no canteiro." },
+                { step: "05", title: "Condução técnica até a entrega", desc: "Direcionamento constante de método construtivo, normativas e fiscalização da qualidade em cada avanço de etapa." },
+                { step: "06", title: "Transparência e prestação de contas", desc: "Fechamentos mensais detalhados de custo consolidado, fotos de avanço e controle documental impecável." }
               ].map((item, i) => (
-                <div key={i} className="group border-b border-gray-100 py-12 last:border-b-0 hover:bg-white transition-all px-8 -mx-8 cursor-default">
-                  <div className="flex gap-10 items-start">
-                    <span className="text-berti-gold/30 font-display font-black text-4xl group-hover:text-berti-gold transition-colors">{item.step}</span>
-                    <div className="space-y-4">
-                      <h3 className="text-2xl font-bold tracking-tight">{item.title}</h3>
-                      <p className="text-gray-500 leading-relaxed font-light">{item.desc}</p>
-                    </div>
+                <div key={i} className="group border border-gray-100 bg-white p-8 hover:border-berti-gold/30 hover:shadow-lg transition-all cursor-default relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-[0.02] text-8xl font-black group-hover:text-berti-gold transition-colors">{item.step}</div>
+                  <div className="flex flex-col gap-4 relative z-10">
+                    <div className="text-berti-gold font-display font-black text-2xl">{item.step}</div>
+                    <h3 className="text-2xl font-bold tracking-tight text-berti-ink pr-12">{item.title}</h3>
+                    <p className="text-gray-500 leading-relaxed font-light">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -536,62 +510,63 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
         </div>
       </section>
 
-      {/* 5. Diferenciais (Cards Premium) */}
-      <section className="py-40 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="mb-24">
-             <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-8 text-center">Diferenciais</div>
-             <h2 className="text-5xl md:text-7xl text-center">Gestão completa da obra, <br /><span className="italic font-serif font-light text-berti-sage/60">do planejamento à entrega final.</span></h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100 border border-gray-100">
-             {[
-               { title: "Inteligência Construtiva", desc: "Cada decisão técnica parte da análise rigorosa do projeto, garantindo viabilidade e precisão executiva." },
-               { title: "Método e Transparência", desc: "Sistema de gestão que une planejamento eficiente, execução limpa e prestação de contas detalhada mensalmente." },
-               { title: "Compromisso com o Resultado", desc: "Entrega de soluções completas para quem valoriza tempo, investimento e excelência em cada detalhe." },
-               { title: "Coordenação de Equipes", desc: "Gerenciamento e acompanhamento rigoroso de mão de obra própria e terceirizada em todas as frentes." },
-               { title: "Controle de Custos", desc: "Gestão técnica e fiscal de notas e insumos, assegurando que o orçamento seja respeitado com clareza total." }
-             ].map((card, i) => (
-               <div key={i} className="p-8 md:p-12 lg:p-16 flex flex-col justify-between aspect-square group bg-white hover:bg-berti-light transition-colors duration-500 overflow-hidden">
-                 <div className="w-12 h-px bg-berti-gold/40 group-hover:w-full transition-all duration-1000"></div>
-                 <div>
-                   <h3 className="text-2xl md:text-3xl mb-6 md:mb-8 font-bold leading-tight tracking-tighter">{card.title}</h3>
-                   <p className="text-gray-400 font-light leading-relaxed text-sm md:text-base">{card.desc}</p>
-                 </div>
-               </div>
-             ))}
-             <div className="p-8 md:p-12 lg:p-16 bg-berti-ink text-white flex flex-col justify-end aspect-square relative group overflow-hidden">
-                <div className="absolute inset-0 bg-berti-gold opacity-0 group-hover:opacity-10 transition-opacity duration-1000"></div>
-                <div className="text-3xl md:text-4xl font-display font-light leading-tight relative z-10">Soluções <br /><span className="text-berti-gold italic font-serif">Completas.</span></div>
+      {/* 3. Problema + Posicionamento */}
+      <section ref={sections.pos} className="py-40 px-6 md:px-12 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-24 items-center">
+             <div className="md:col-span-4 aspect-square bg-berti-ink p-16 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                <div className="absolute -bottom-8 -right-8 text-[15rem] leading-none text-white/5 font-serif italic">B</div>
+                <div className="text-berti-gold font-display text-4xl italic mb-auto">B<span className="text-white">.</span></div>
+                <div className="space-y-6 relative z-10">
+                   <div className="h-px w-12 bg-berti-gold/50"></div>
+                   <h3 className="text-white text-5xl font-extrabold leading-[1.1] tracking-tight">O que fazemos</h3>
+                </div>
+             </div>
+             <div className="md:col-span-8">
+                <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-12">Nossa Atuação</div>
+                <h2 className="text-4xl md:text-5xl lg:text-6xl mb-12 leading-[1.1] tracking-tight text-berti-ink">A maioria das obras perde o controle porque não existe condução técnica clara.</h2>
+                <div className="space-y-8">
+                  <p className="text-xl text-gray-600 font-light leading-relaxed">
+                    A Berti entra exatamente nesse ponto: <span className="font-medium text-berti-ink">organizar, estruturar e garantir que cada decisão seja tomada com base técnica</span> — do início ao fim.
+                  </p>
+                  <p className="text-xl text-gray-500 font-light leading-relaxed">
+                    Não somos apenas executores, agimos como os curadores técnicos do investimento do cliente no processo de construção.
+                  </p>
+                </div>
              </div>
           </div>
         </div>
       </section>
 
-      {/* 6. Transparência e Controle */}
-      <section className="py-40 bg-berti-dark text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-32 opacity-[0.03] text-[25rem] font-black leading-none pointer-events-none select-none uppercase -translate-y-1/4 translate-x-1/4">Trust</div>
+
+
+      {/* 5. Transparência */}
+      <section className="py-40 bg-white border-b border-gray-100 overflow-hidden relative">
+        <div className="absolute top-0 right-0 p-32 opacity-[0.02] text-[25rem] font-black leading-none pointer-events-none select-none uppercase -translate-y-1/4 translate-x-1/4 text-berti-ink">Trust</div>
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row gap-24 items-center relative z-10">
           <div className="lg:w-1/2">
-            <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-12">Transparência</div>
-            <h2 className="text-5xl md:text-8xl mb-12 leading-[0.9] font-extrabold">Sem margem escondida. <br /><span className="text-white/30 italic font-serif font-light">Sem ruído.</span></h2>
-            <p className="text-xl text-white/50 mb-16 font-light leading-relaxed max-w-xl">
-              Nosso modelo privilegia orçamento claro, acompanhamento técnico e visibilidade real sobre a obra. A mão de obra é acompanhada conforme avanço físico, os materiais seguem cotação e conferência, e o cliente acompanha a execução com critério e prestação de contas.
+            <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-12">Transparência Total</div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl mb-10 leading-[1] font-black text-berti-ink tracking-tight">Sem margem escondida. <br /><span className="text-gray-400 font-light italic font-serif">Sem ruído.</span></h2>
+            <p className="text-xl text-gray-600 mb-10 font-light leading-relaxed max-w-xl">
+              Você sabe exatamente para onde está indo cada decisão e cada investimento.
+            </p>
+            <p className="text-lg text-gray-500 mb-16 font-light leading-relaxed max-w-xl">
+              Nosso modelo privilegia orçamento claro e visibilidade real sobre a obra. A mão de obra é acompanhada por avanço técnico, materiais seguem cotação e o cliente acompanha a execução com critério.
             </p>
           </div>
           <div className="lg:w-1/2 w-full">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-16 space-y-10">
+            <div className="bg-berti-light border border-gray-200 p-16 space-y-10">
               {[
-                "Orçamento estruturado por etapa",
-                "Acompanhamento técnico contínuo",
-                "Relatórios mensais com fotos e medições",
-                "Notas fiscais organizadas",
-                "Compras e fornecedores coordenados",
-                "Mais previsibilidade na tomada de decisão"
+                "Orçamento estruturado por etapa construtiva",
+                "Acompanhamento técnico e fiscal rigoroso",
+                "Relatórios detalhados com fotos e medições",
+                "Auditoria e organização de notas fiscais",
+                "Equalização e coordenação de cotações",
+                "Decisão estratégica guiada por dados"
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-8 group">
-                  <div className="w-2 h-[1px] bg-berti-gold group-hover:w-8 transition-all duration-500"></div>
-                  <span className="text-sm font-bold uppercase tracking-[0.3em] text-white/70 group-hover:text-white transition-colors">{item}</span>
+                  <div className="w-12 h-px bg-berti-gold/40 group-hover:w-16 group-hover:bg-berti-gold transition-all duration-500"></div>
+                  <div className="text-gray-700 font-medium group-hover:text-berti-ink transition-colors">{item}</div>
                 </div>
               ))}
             </div>
@@ -599,10 +574,9 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
         </div>
       </section>
 
-      {/* 7. Escopo e Capacidade - Text over Carousel */}
-      <section className="relative py-40 overflow-hidden bg-berti-ink min-h-[90vh] flex flex-col justify-center">
-        {/* Background Auto-scrolling Carousel */}
-        <div className="absolute inset-0 z-0 flex overflow-hidden opacity-20 pointer-events-none">
+      {/* 6. Escopo de Atuação */}
+      <section className="py-40 bg-berti-ink relative">
+        <div className="absolute inset-0 z-0 flex overflow-hidden opacity-10 pointer-events-none">
           <motion.div 
             animate={{ x: ["0%", "-50%"] }} 
             transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
@@ -631,28 +605,19 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
           </motion.div>
         </div>
         
-        {/* Overlay gradient for readability */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-br from-berti-ink via-berti-ink/90 to-berti-ink/60 pointer-events-none" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-berti-ink via-berti-ink/95 to-berti-ink/80 pointer-events-none" />
 
-        {/* Text Content overlaying the carousel */}
         <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12 flex flex-col items-center text-center">
-            <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-8">Amplo Domínio Executivo</div>
-            <h2 className="text-5xl md:text-7xl mb-12 leading-[1.1] text-white">Da fundação ao acabamento, <br /><span className="text-berti-sage font-light italic font-serif opacity-90">com coordenação técnica.</span></h2>
-            <p className="text-xl text-white/70 mb-16 font-light leading-relaxed max-w-4xl">
-              A Berti atua na condução técnica e executiva de obras completas, integrando estrutura, instalações, revestimentos, esquadrias, forros, acabamentos, compras e acompanhamento da execução. O objetivo é manter coerência entre escopo, orçamento e entrega.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-12 pt-12 border-t border-white/10 w-full max-w-4xl">
+            <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-8">Escopo Completo</div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl mb-12 leading-[1.1] text-white tracking-tight">Da fundação ao acabamento, <br /><span className="text-berti-sage font-light italic font-serif">com coordenação técnica.</span></h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-12 mt-10 w-full max-w-5xl">
               {[
-                "Mão de obra",
-                "Gestão de Custos",
-                "Gestão de Compras",
-                "Construção do Zero",
-                "Reformas e Ampliações",
-                "Direção Técnica",
-                "Compatibilização",
-                "Cronograma"
+                "Integração de Projetos",
+                "Controle Estrutural",
+                "Gestão de Instalações",
+                "Curadoria de Acabamentos"
               ].map(t => (
-                <div key={t} className="text-white/90 text-[10px] sm:text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-3">
+                <div key={t} className="text-white/90 text-[11px] sm:text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-4">
                   <div className="w-1.5 h-1.5 bg-berti-gold"></div>
                   {t}
                 </div>
@@ -661,190 +626,39 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
         </div>
       </section>
 
-      {/* 7.5 Horizontal Gallery Marquee */}
-      <section className="bg-berti-ink py-10 overflow-hidden border-t border-white/5">
-        <div className="relative w-full flex overflow-hidden">
-          <motion.div 
-            animate={{ x: ["0%", "-50%"] }} 
-            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-            className="flex w-[200%] gap-4 px-4"
-          >
-            {[...(concepts && concepts.length > 0 ? concepts.map(c => c.url) : [
-              "https://images.unsplash.com/photo-1590674251239-0f0e08f23783?q=80&w=1000",
-              "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=1000",
-              "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=1000",
-              "https://images.unsplash.com/photo-1541976590-713941fbc1f6?q=80&w=1000",
-              "https://images.unsplash.com/photo-118221195710-dd6b41faaea6?q=80&w=1000"
-            ]), ...(concepts && concepts.length > 0 ? concepts.map(c => c.url) : [
-              "https://images.unsplash.com/photo-1590674251239-0f0e08f23783?q=80&w=1000",
-              "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=1000",
-              "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=1000",
-              "https://images.unsplash.com/photo-1541976590-713941fbc1f6?q=80&w=1000",
-              "https://images.unsplash.com/photo-118221195710-dd6b41faaea6?q=80&w=1000"
-            ])].map((src, i) => (
-              <div key={i} className="flex-none w-[280px] md:w-[400px] aspect-video rounded-sm overflow-hidden shrink-0 group">
-                <img 
-                  src={src as string} 
-                  alt="Vitrine Berti" 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
-                  loading="lazy" 
-                />
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
-      {/* 8. Metodologia (Processo Berti) */}
-      <section className="py-40 bg-berti-light border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="mb-24 text-center">
-             <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-8">Fluxo de Trabalho</div>
-             <h2 className="text-5xl md:text-7xl leading-[1.1]">Como a Berti <br /><span className="italic font-serif font-light text-berti-sage/60">conduz seu projeto.</span></h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-0 border border-gray-200">
-             {[
-               { n: "01", t: "Recebimento de Projeto", d: "Análise técnica detalhada do arquitetônico e complementares." },
-               { n: "02", t: "Compatibilização", d: "Estudo de viabilidade e alinhamento entre todas as disciplinas de projeto." },
-               { n: "03", t: "Orçamentos e Cotações", d: "Cotação técnica rigorosa para garantir o melhor custo-benefício real." },
-               { n: "04", t: "Planejamento de Obra", d: "Definição de cronograma físico-financeiro e metas de execução." },
-               { n: "05", t: "Gestão de Mão de Obra", d: "Fornecimento, coordenação e fiscalização da equipe técnica." },
-               { n: "06", t: "Gestão de Materiais", d: "Curadoria na compra, recebimento e conferência rigorosa de insumos." },
-               { n: "07", t: "Equipes Terceirizadas", d: "Gerenciamento total de especialistas e frentes de trabalho externas." },
-               { n: "08", t: "Direção Técnica", d: "Acompanhamento integral da engenharia até a entrega final das chaves." }
-             ].map((step, i) => (
-               <div key={i} className="p-12 space-y-8 bg-white hover:bg-berti-light transition-all cursor-default border-r border-b border-gray-100 last:border-r-0">
-                  <div className="text-berti-gold font-display font-black text-2xl opacity-30">{step.n}</div>
-                  <div className="space-y-4">
-                     <h4 className="text-[12px] font-bold uppercase tracking-widest leading-relaxed h-12 flex items-center">{step.t}</h4>
-                     <p className="text-sm text-gray-500 font-light leading-relaxed">{step.d}</p>
-                  </div>
-               </div>
-             ))}
-          </div>
-        </div>
-      </section>
 
-      {/* 9. Autoridade Técnica (Dark Section) */}
-      <section className="py-40 bg-berti-ink text-white">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-           <div className="mb-32 max-w-4xl">
-              <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-12 flex items-center gap-4">
-                <span className="w-12 h-px bg-berti-gold"></span>
-                Autoridade Técnica
-              </div>
-              <h2 className="text-5xl md:text-8xl leading-none font-extrabold tracking-tighter">Obra de alto padrão exige mais do que execução. <span className="text-berti-gold italic font-serif font-light">Exige condução técnica.</span></h2>
-           </div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-24">
-              <div className="space-y-8 group">
-                 <h4 className="text-white text-sm font-bold tracking-[0.3em] uppercase pb-8 border-b border-white/10 group-hover:border-berti-gold transition-colors duration-500">Experiência Elevada</h4>
-                 <p className="text-white/40 leading-relaxed font-light group-hover:text-white/70 transition-colors">Atuação em projetos residenciais e comerciais com elevado nível de detalhe, coordenação e padrão de entrega.</p>
-              </div>
-              <div className="space-y-8 group">
-                 <h4 className="text-white text-sm font-bold tracking-[0.3em] uppercase pb-8 border-b border-white/10 group-hover:border-berti-gold transition-colors duration-500">Integração entre Projeto</h4>
-                 <p className="text-white/40 leading-relaxed font-light group-hover:text-white/70 transition-colors">Aproximamos leitura técnica, decisão executiva e alinhamento entre os envolvidos para evitar desalinhamentos.</p>
-              </div>
-              <div className="space-y-8 group">
-                 <h4 className="text-white text-sm font-bold tracking-[0.3em] uppercase pb-8 border-b border-white/10 group-hover:border-berti-gold transition-colors duration-500">Processo Estruturado</h4>
-                 <p className="text-white/40 leading-relaxed font-light group-hover:text-white/70 transition-colors">Cada obra avança com organização, definição de etapas e acompanhamento consistente do início ao fechamento.</p>
-              </div>
-           </div>
-        </div>
-      </section>
-
-      {/* 10. Portfólio (Editorial Grid) */}
-      <section ref={sections.portfolio} className="py-40 bg-white">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-           <div className="flex flex-col md:flex-row justify-between items-end mb-32 gap-12">
-              <div className="max-w-2xl">
-                 <h2 className="text-6xl md:text-8xl mb-8 leading-none font-extrabold">Portfólio <br /><span className="text-berti-gold">de Obras.</span></h2>
-                 <p className="text-xl text-gray-500 font-light leading-relaxed">
-                   Cada obra apresentada aqui reflete uma condução técnica consistente: organização, alinhamento com o projeto, atenção à execução e compromisso com o padrão final de entrega.
-                 </p>
-              </div>
-              <div className="pb-4">
-                <Link to="/portfolio" className="group flex items-center gap-4 py-6 px-10 bg-berti-dark text-white text-[10px] font-bold uppercase tracking-widest hover:bg-berti-gold transition-all">
-                  Ver Portfólio Completo <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                </Link>
-              </div>
-           </div>
-           
-           {loading ? <LoadingSpinner /> : (
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-               {projects.slice(0, 2).map((proj, i) => (
-                 <div key={i} className="group cursor-pointer" onClick={() => onProjectClick(proj)}>
-                    <div className="aspect-[16/10] bg-gray-100 mb-10 overflow-hidden relative shadow-2xl">
-                       <ParallaxImage 
-                         src={proj.photos?.[0]} 
-                         alt={proj.title} 
-                         className="w-full h-full object-cover transition-all duration-[1.5s] ease-out group-hover:scale-105 saturate-125" 
-                       />
-                       <div className="absolute top-8 right-8 bg-berti-gold px-6 py-3 text-[9px] font-bold uppercase tracking-widest text-white border border-white/10 tracking-[0.3em] shadow-xl">Alto Padrão</div>
-                    </div>
-                    <div className="flex justify-between items-start border-b border-gray-100 pb-10">
-                       <div>
-                          <h3 className="text-3xl font-bold mb-3 tracking-tighter leading-none group-hover:text-berti-gold transition-colors">{proj.title}</h3>
-                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.4em]">{proj.location} / {proj.year}</div>
-                       </div>
-                       <div className="text-berti-gold text-2xl group-hover:translate-x-3 transition-transform duration-700">→</div>
-                    </div>
-                 </div>
-               ))}
-             </div>
-           )}
-        </div>
-      </section>
-
-      {/* 11. Como Pensamos (Typographic) */}
-      <section className="py-40 bg-berti-light border-y border-gray-200 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-berti-gold)_0%,_transparent_1px)] bg-[length:40px_40px] opacity-[0.05]"></div>
-        <div className="max-w-4xl mx-auto px-12 text-center relative z-10">
-           <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.6em] mb-12">Nossa Essência</div>
-           <h2 className="text-5xl md:text-8xl mb-20 leading-[1.1] font-extrabold tracking-tighter">Uma obra bem executada não depende de sorte. <br /><span className="italic font-serif font-light text-berti-sage/60">Depende de direção.</span></h2>
-           
-           <div className="flex flex-wrap justify-center gap-x-12 gap-y-12 mb-20">
-              {["Organização clara", "Planejamento técnico", "Definição de etapas", "Controle da execução", "Comunicação objetiva"].map(t => (
-                <div key={t} className="text-[10px] font-bold uppercase tracking-[0.5em] text-berti-sage/80 bg-white shadow-sm border border-gray-100 px-8 py-4">{t}</div>
-              ))}
-           </div>
-           
-           <p className="text-3xl font-light text-berti-ink/40 max-w-2xl mx-auto italic font-serif leading-relaxed">
-             Nosso papel é reduzir ruído, organizar decisões e conduzir a obra com clareza do início ao fim.
-           </p>
-        </div>
-      </section>
-
-      {/* 12. CTA Final */}
+      {/* 9. CTA Final */}
       <section className="py-40 bg-white">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 pt-12 border-t border-gray-100">
-           <div className="flex flex-col lg:flex-row gap-32 items-center justify-between">
-              <div className="max-w-2xl">
-                 <div className="text-berti-gold text-[11px] font-bold uppercase tracking-[0.6em] mb-16 flex items-center gap-4">
-                    <span className="w-12 h-px bg-berti-gold"></span>
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+           <div className="flex flex-col lg:flex-row gap-24 items-center justify-between">
+              <div className="max-w-3xl">
+                 <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-12 flex items-center gap-6">
+                    <span className="w-16 h-px bg-berti-gold"></span>
                     Próximo Passo
                  </div>
-                 <h2 className="text-6xl md:text-9xl leading-[0.85] font-extrabold mb-12 tracking-tightest">Envie seu projeto. <br /><span className="text-berti-gold">A Berti analisa.</span></h2>
-                 <p className="text-xl text-gray-500 font-light leading-relaxed mb-16 max-w-xl">
-                   Se você busca uma obra mais organizada, previsível e bem conduzida, o próximo passo é começar por uma análise técnica clara. Arquitetura, orçamento, execução e tomada de decisão precisam falar a mesma língua.
+                 <h2 className="text-5xl md:text-6xl lg:text-7xl leading-[1] font-bold tracking-tight mb-12 text-berti-ink">Envie seu projeto. <br /><span className="text-berti-gold italic font-serif font-light">A Berti analisa.</span></h2>
+                 <p className="text-xl text-gray-700 font-light leading-relaxed mb-6">
+                   O próximo passo para uma obra organizada e previsível é uma análise técnica clara.
                  </p>
-              </div>
-              <div className="flex flex-col gap-10 w-full lg:w-auto">
-                 <button 
-                  onClick={() => window.location.href = `https://wa.me/5541991836651`}
-                  className="px-20 py-8 bg-berti-ink text-white font-bold text-[12px] uppercase tracking-[0.4em] hover:bg-berti-gold transition-all duration-700 shadow-2xl relative group overflow-hidden"
-                 >
-                   <span className="relative z-10 text-white group-hover:text-white transition-colors duration-500">Agendar uma conversa</span>
-                   <div className="absolute inset-0 bg-berti-gold translate-y-full group-hover:translate-y-0 transition-transform duration-700"></div>
-                 </button>
-                 <button 
-                  onClick={() => window.location.href = `mailto:berti@curitibaconstrutora.com.br`}
-                  className="px-20 py-8 border border-berti-ink/10 text-berti-ink font-bold text-[12px] uppercase tracking-[0.4em] hover:bg-berti-ink hover:text-white transition-all duration-700"
-                 >
-                   Analisar Projeto
-                 </button>
-                 <div className="text-[10px] text-gray-300 font-bold uppercase tracking-widest text-center">Curitiba • Santa Catarina</div>
+                 <p className="text-lg text-gray-500 font-light leading-relaxed mb-16">
+                   Se você busca controle desde a primeira decisão, nós podemos guiar o processo construtivo. Arquitetura, orçamento, execução e tomada de decisão precisam falar a mesma língua.
+                 </p>
+                 
+                 <div className="flex flex-col sm:flex-row gap-6 w-full lg:w-auto">
+                    <button 
+                     onClick={() => window.location.href = `https://wa.me/5541991836651`}
+                     className="px-10 py-5 bg-berti-ink text-white font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-berti-gold transition-all duration-500 shadow-xl flex-1 md:flex-none"
+                    >
+                      Solicitar Análise
+                    </button>
+                    <button 
+                     onClick={() => window.location.href = `mailto:berti@curitibaconstrutora.com.br`}
+                     className="px-10 py-5 border border-gray-300 text-berti-ink font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-gray-100 transition-all duration-500 flex-1 md:flex-none"
+                    >
+                      Enviar por E-mail
+                    </button>
+                 </div>
               </div>
            </div>
         </div>
@@ -982,13 +796,13 @@ const AdminLogin = ({ onLogin, onBack }: any) => (
   <div className="bg-white p-16 max-w-sm w-full shadow-2xl text-center border-t-4 border-berti-gold">
     <div className="font-display text-5xl mb-8">Portal</div>
     <p className="text-gray-500 text-[10px] mb-12 uppercase tracking-[0.2em] leading-relaxed font-bold">
-      Bem-vindo ao centro de gestão Berti. Identifique-se para acessar o painel técnico.
+      Bem-vindo ao Portal do Cliente e Gestão Berti. Identifique-se para acessar.
     </p>
     <button 
       onClick={onLogin}
       className="w-full flex items-center justify-center gap-4 py-6 bg-berti-dark text-white rounded-sm hover:bg-berti-sage transition-all text-[11px] font-bold uppercase tracking-widest shadow-xl"
     >
-      Login com Google
+      Acessar com Google
     </button>
     <button 
       onClick={onBack}
@@ -999,20 +813,21 @@ const AdminLogin = ({ onLogin, onBack }: any) => (
   </div>
 );
 
-const NoPermission = ({ user, onLogout }: any) => (
-  <div className="bg-white p-12 max-w-md w-full shadow-2xl text-center border-t-4 border-red-500">
-    <div className="text-red-500 mb-8"><Lock size={48} className="mx-auto" /></div>
-    <div className="font-display text-2xl mb-4">Acesso Negado</div>
+const ClientDashboard = ({ user, onLogout }: any) => (
+  <div className="bg-white p-12 max-w-md w-full shadow-2xl text-center border-t-4 border-berti-gold">
+    <div className="text-berti-gold mb-8"><Lock size={48} className="mx-auto" /></div>
+    <div className="font-display text-2xl mb-4">Portal do Cliente</div>
     <p className="text-gray-500 text-sm mb-12 leading-relaxed font-light">
-      A conta <strong>{user.email}</strong> não possui privilégios administrativos. <br />Contate a diretoria da Berti para liberação.
+      Olá, <strong>{user.displayName || user.email}</strong>. <br /><br />
+      Seu ambiente exclusivo está sendo preparado. Em breve, você poderá acompanhar o status da sua obra e acessar todos os documentos diretamente por aqui.
     </p>
-    <button onClick={onLogout} className="text-berti-sage font-bold hover:underline text-xs uppercase tracking-widest">Sair do Sistema</button>
+    <button onClick={onLogout} className="text-berti-sage font-bold hover:underline text-xs uppercase tracking-widest">Sair da Conta</button>
   </div>
 );
 
 // --- Admin Section ---
 
-const JourneyImageCard = ({ url, index, journeyImages }: { url: string, index: number, journeyImages: string[] }) => {
+const JourneyImageCard = ({ url, index, journeyImages }: any) => {
   const [loading, setLoading] = useState(false);
 
   const handleUpload = async (e: any) => {
@@ -1033,7 +848,14 @@ const JourneyImageCard = ({ url, index, journeyImages }: { url: string, index: n
 
   return (
     <div className="border border-gray-100 p-4 relative group">
-      <div className="font-bold mb-2 uppercase text-[10px] tracking-widest text-berti-gold">Passo 0{index + 1}</div>
+      <div className="font-bold mb-2 uppercase text-[10px] tracking-[0.3em] text-berti-gold">
+        {index === 0 && "JORNADA - PASSO 01: DIAGNÓSTICO"}
+        {index === 1 && "JORNADA - PASSO 02: ESTRUTURAÇÃO"}
+        {index === 2 && "JORNADA - PASSO 03: PLANEJAMENTO"}
+        {index === 3 && "JORNADA - PASSO 04: EXECUÇÃO"}
+        {index === 4 && "BANNER: SEÇÃO NOSSOS SERVIÇOS"}
+        {index > 4 && `EXTRA - IMAGEM ${index + 1}`}
+      </div>
       <div className="aspect-video bg-gray-50 relative overflow-hidden flex items-center justify-center">
         {loading ? (
           <div className="animate-spin w-8 h-8 rounded-full border-4 border-berti-gold border-t-transparent" />
@@ -1166,12 +988,25 @@ const AdminDashboard = ({ projects, testimonials, onLogout, onViewSite, concepts
         )}
 
         {activeTab === 'journey' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-berti-ink">
-            {journeyImages?.map((url: string, index: number) => (
-              <JourneyImageCard key={index} url={url} index={index} journeyImages={journeyImages} />
-            ))}
+          <div className="space-y-16">
+            <div>
+              <h4 className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.3em] mb-8 border-b border-berti-gold/10 pb-4">Imagens das Etapas da Jornada</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-berti-ink">
+                {journeyImages.slice(0, 4).map((url: string, index: number) => (
+                  <JourneyImageCard key={index} url={url} index={index} journeyImages={journeyImages} />
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.3em] mb-8 border-b border-berti-gold/10 pb-4">Banners e Seções Globais</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-berti-ink">
+                <JourneyImageCard url={journeyImages[4]} index={4} journeyImages={journeyImages} />
+              </div>
+            </div>
+            
             {!journeyImages?.length && (
-              <div className="col-span-full py-12 text-center text-gray-400 text-sm italic">As imagens da jornada não foram configuradas ainda.</div>
+              <div className="col-span-full py-12 text-center text-gray-400 text-sm italic">As imagens não foram configuradas ainda.</div>
             )}
           </div>
         )}
@@ -1407,12 +1242,14 @@ const ClientJourneyPage = ({ images }: any) => {
     window.scrollTo(0, 0);
   }, []);
 
-  const displayImages = images?.length === 4 ? images : [
+  const defaultImages = [
     "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop"
   ];
+  const displayImages = defaultImages.map((img, i) => (images && images[i]) ? images[i] : img);
   
   const phases = [
     { title: "Diagnóstico", subtitle: "Passos 01, 02 e 03" },
@@ -1421,29 +1258,29 @@ const ClientJourneyPage = ({ images }: any) => {
     { title: "Execução e Entrega", subtitle: "Passos 10, 11 e 12" }
   ];
 
+  const journeyImagesList = displayImages.slice(0, 4);
+  const servicesImage = displayImages[4];
+
   const [activeIndex, setActiveIndex] = useState(0);
 
   const nextPhase = () => {
-    setActiveIndex((prev) => (prev + 1) % displayImages.length);
+    setActiveIndex((prev) => (prev + 1) % journeyImagesList.length);
   };
 
   const prevPhase = () => {
-    setActiveIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length);
+    setActiveIndex((prev) => (prev - 1 + journeyImagesList.length) % journeyImagesList.length);
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }}
-      className="min-h-screen bg-berti-light pt-32 pb-40"
+    <div 
+      className="min-h-screen bg-berti-light pt-32 pb-40 overflow-x-hidden"
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 mb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center max-w-4xl mx-auto mb-16"
+          className="text-center max-w-4xl mx-auto"
         >
           <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-6 flex items-center justify-center gap-4">
              <span className="w-8 h-px bg-berti-gold/40"></span>
@@ -1458,7 +1295,9 @@ const ClientJourneyPage = ({ images }: any) => {
             Do primeiro contato à entrega das chaves, cada etapa é organizada para garantir previsibilidade, segurança e controle sobre o seu investimento.
           </p>
         </motion.div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
         {/* Navigation Tabs (Desktop & Tablet) */}
         <div className="hidden md:flex justify-between items-center mb-10 max-w-5xl mx-auto border-b border-gray-200">
           {phases.map((phase, index) => (
@@ -1506,92 +1345,77 @@ const ClientJourneyPage = ({ images }: any) => {
             </button>
           ))}
         </div>
+      </div>
 
-        {/* Gallery Slider */}
-        <div className="relative max-w-6xl mx-auto bg-white rounded-2xl md:rounded-[2.5rem] shadow-2xl shadow-berti-dark/5 p-2 md:p-4 mb-24 overflow-hidden">
-          <div className="relative overflow-hidden rounded-xl md:rounded-[2rem] bg-gray-50 border border-gray-100 flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="w-full flex items-center justify-center"
-              >
-                 {/* Preserving aspect ratio without cropping */}
-                <img 
-                  src={displayImages[activeIndex]} 
-                  alt={`Fase ${activeIndex + 1}: ${phases[activeIndex].title}`}
-                  className="w-full h-auto object-contain max-h-[80vh]"
-                />
-              </motion.div>
-            </AnimatePresence>
+      {/* Gallery Slider - Full Width */}
+      <div className="relative w-full bg-white mb-32 overflow-hidden group">
+        <div className="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center bg-gray-50/30">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeIndex}
+              initial={{ opacity: 0, scale: 1.01 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.99 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 w-full h-full flex items-center justify-center p-0"
+            >
+              <img 
+                src={journeyImagesList[activeIndex]} 
+                alt={`Fase ${activeIndex + 1}: ${phases[activeIndex].title}`}
+                className="w-full h-full object-contain"
+              />
+            </motion.div>
+          </AnimatePresence>
 
-            {/* Navigation Controls Overlay (Desktop) */}
-            <div className="hidden md:flex absolute inset-y-0 left-0 right-0 items-center justify-between pointer-events-none px-6">
-               <button 
-                  onClick={prevPhase}
-                  className="pointer-events-auto p-4 rounded-full bg-white/90 hover:bg-white text-berti-ink shadow-lg backdrop-blur-md transition-all hover:text-berti-gold hover:scale-105 group"
+          {/* Clickable Navigation Sides - High Accessibility UX */}
+          <div className="absolute inset-0 flex z-10">
+            <div 
+              onClick={prevPhase}
+              className="flex-1 cursor-w-resize flex items-center justify-start pl-8 opacity-0 hover:opacity-100 transition-opacity duration-300"
+            >
+               <motion.div 
+                className="p-6 rounded-full bg-berti-ink/5 backdrop-blur-md text-berti-ink border border-berti-ink/10 hidden md:flex hover:bg-berti-ink hover:text-white transition-all shadow-xl"
                >
-                 <ChevronRight className="w-6 h-6 rotate-180 group-hover:-translate-x-1 transition-transform" />
-               </button>
-                <button 
-                  onClick={nextPhase}
-                   className="pointer-events-auto p-4 rounded-full bg-white/90 hover:bg-white text-berti-ink shadow-lg backdrop-blur-md transition-all hover:text-berti-gold hover:scale-105 group"
+                 <ArrowLeft className="w-8 h-8" />
+               </motion.div>
+            </div>
+            <div 
+              onClick={nextPhase}
+              className="flex-1 cursor-e-resize flex items-center justify-end pr-8 opacity-0 hover:opacity-100 transition-opacity duration-300"
+            >
+               <motion.div 
+                className="p-6 rounded-full bg-berti-ink/5 backdrop-blur-md text-berti-ink border border-berti-ink/10 hidden md:flex hover:bg-berti-ink hover:text-white transition-all shadow-xl"
                >
-                 <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-               </button>
+                 <ChevronRight className="w-8 h-8" />
+               </motion.div>
             </div>
           </div>
         </div>
+      </div>
 
-         {/* Navigation Controls (Mobile) */}
-         <div className="flex md:hidden items-center justify-between mb-24 px-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <button 
-              onClick={prevPhase}
-              className="p-3 rounded-full bg-gray-50 hover:bg-gray-100 text-berti-ink transition-all active:scale-95"
-            >
-              <ChevronRight className="w-5 h-5 rotate-180" />
-            </button>
-             <div className="flex gap-2.5">
-                {displayImages.map((_, idx) => (
-                  <div 
-                    key={idx} 
-                    className={`h-2 rounded-full transition-all duration-300 ${activeIndex === idx ? 'w-8 bg-berti-gold' : 'w-2 bg-gray-200'}`}
-                  />
-                ))}
-             </div>
-            <button 
-              onClick={nextPhase}
-              className="p-3 rounded-full bg-gray-50 hover:bg-gray-100 text-berti-ink transition-all active:scale-95"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-         </div>
-
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
          {/* CTA Section */}
          <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-4xl mx-auto text-center bg-white p-12 md:p-20 rounded-[2.5rem] shadow-xl shadow-berti-dark/5 border border-gray-100 relative overflow-hidden"
+            className="max-w-5xl mx-auto text-center bg-white p-12 md:p-24 rounded-[3rem] shadow-2xl shadow-berti-dark/5 border border-gray-100 relative overflow-hidden mb-32"
          >
             {/* Subtle background decoration */}
             <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-              <ShieldCheck className="w-64 h-64 text-berti-gold" />
+              <ShieldCheck className="w-72 h-72 text-berti-gold" />
             </div>
 
             <div className="relative z-10">
-              <h3 className="text-3xl md:text-5xl font-display tracking-tight text-berti-ink mb-6">
+              <h3 className="text-3xl md:text-5xl lg:text-6xl font-display tracking-tight text-berti-ink mb-8">
                 Quer entender em qual etapa <br className="hidden md:block"/>está o seu projeto?
               </h3>
-              <p className="text-lg text-berti-ink/60 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-                Fale com a Berti e receba uma orientação inicial sobre o melhor caminho para estruturar sua obra.
+              <p className="text-lg md:text-xl text-berti-ink/60 font-light mb-12 max-w-3xl mx-auto leading-relaxed">
+                Fale com a Berti e receba uma orientação inicial sobre o melhor caminho para estruturar sua obra com tranquilidade.
               </p>
               <button 
-                onClick={() => window.open('https://wa.me/554199999999', '_blank')}
-                className="inline-flex items-center gap-4 px-10 py-5 bg-berti-dark text-white font-bold text-[11px] uppercase tracking-[0.2em] hover:bg-berti-gold transition-all duration-300 group shadow-xl shadow-berti-dark/10"
+                onClick={() => window.open('https://wa.me/5541991836651', '_blank')}
+                className="inline-flex items-center gap-6 px-12 py-6 bg-berti-dark text-white font-bold text-[12px] uppercase tracking-[0.2em] hover:bg-berti-gold transition-all duration-500 group shadow-2xl shadow-berti-dark/20"
               >
                 <Phone className="w-4 h-4 text-berti-gold group-hover:text-white transition-colors" />
                 Iniciar diagnóstico do projeto
@@ -1599,8 +1423,63 @@ const ClientJourneyPage = ({ images }: any) => {
               </button>
             </div>
          </motion.div>
+
+         {/* Nossos Serviços Section */}
+         <div className="space-y-24 mb-32">
+            <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               className="text-center max-w-3xl mx-auto"
+            >
+               <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-6">SOLUÇÕES COMPLETAS</div>
+               <h2 className="text-5xl md:text-7xl font-display tracking-tight text-berti-ink mb-8">Nossos Serviços</h2>
+               <p className="text-lg text-berti-ink/60 font-light leading-relaxed">
+                  Oferecemos um escopo completo de gestão e execução para que você tenha total segurança em todas as etapas da construção.
+               </p>
+            </motion.div>
+
+            <motion.div 
+               initial={{ opacity: 0, y: 30 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+               className="relative h-[500px] md:h-[700px] overflow-hidden rounded-[2rem] md:rounded-[4rem] mx-auto max-w-7xl"
+            >
+               <img 
+                  src={servicesImage} 
+                  alt="Nossos Serviços Berti" 
+                  className="w-full h-full object-cover"
+               />
+            </motion.div>
+
+            <motion.div
+               initial={{ opacity: 0, y: 20 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               className="max-w-7xl mx-auto w-full pt-12"
+            >
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-berti-ink">
+                  <div className="space-y-6">
+                     <div className="w-12 h-px bg-berti-gold"></div>
+                     <h4 className="text-xl font-bold tracking-tight">Gestão de Obras</h4>
+                     <p className="text-base font-light leading-relaxed text-berti-ink/60">Controle rigoroso de cronogramas, custos e fornecedores com total transparência e relatórios detalhados.</p>
+                  </div>
+                  <div className="space-y-6">
+                     <div className="w-12 h-px bg-berti-gold"></div>
+                     <h4 className="text-xl font-bold tracking-tight">Execução Técnica</h4>
+                     <p className="text-base font-light leading-relaxed text-berti-ink/60">Mão de obra especializada e engenharia de alta performance em cada etapa do processo construtivo.</p>
+                  </div>
+                  <div className="space-y-6">
+                     <div className="w-12 h-px bg-berti-gold"></div>
+                     <h4 className="text-xl font-bold tracking-tight">Consultoria Estratégica</h4>
+                     <p className="text-base font-light leading-relaxed text-berti-ink/60">Análise técnica aprofundada, orçamentação precisa e estudos de viabilidade para investimentos seguros.</p>
+                  </div>
+               </div>
+            </motion.div>
+         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -1608,7 +1487,8 @@ const ClientJourneyPage = ({ images }: any) => {
 
 export default function App() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [concepts, setConcepts] = useState<any[]>([]);
@@ -1621,7 +1501,8 @@ export default function App() {
     "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop"
   ]);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
@@ -1670,8 +1551,20 @@ export default function App() {
       setConcepts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     const unsubJourney = onSnapshot(doc(db, 'config', 'journey'), (docSnap) => {
-      if (docSnap.exists() && docSnap.data().images) {
-        setJourneyImages(docSnap.data().images);
+      const defaultImages = [
+        "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop"
+      ];
+      
+      if (docSnap.exists() && docSnap.data()?.images) {
+        const dbImages = docSnap.data().images;
+        const mergedImages = defaultImages.map((img, i) => dbImages[i] || img);
+        setJourneyImages(mergedImages);
+      } else {
+        setJourneyImages(defaultImages);
       }
     });
     return () => { unsubProjects(); unsubTestimonials(); unsubConcepts(); unsubJourney(); };
@@ -1739,58 +1632,68 @@ export default function App() {
         >
           <Navbar onAdminClick={() => navigate('/admin')} />
           
-          <main className="pt-20">
-            <Routes>
-              <Route path="/" element={
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <InstitutionalLanding 
-                    sections={{ hero: heroRef, pos: posRef, portfolio: portfolioRef }}
-                    projects={projects}
-                    onProjectClick={handleProjectClick}
-                    testimonials={testimonials} 
-                    loading={testimonialsLoading} 
-                    concepts={concepts.map(c => c.url)}
-                  />
-                </motion.div>
-              } />
-              <Route path="/jornada" element={
-                <ClientJourneyPage images={journeyImages} />
-              } />
-              
-              <Route path="/portfolio" element={
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <section className="bg-white py-40 px-6 md:px-12">
-                    <div className="max-w-7xl mx-auto">
-                      <header className="mb-32">
-                        <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.5em] mb-10">Portfólio Berti</div>
-                        <h2 className="text-6xl md:text-9xl mb-12 font-extrabold tracking-tightest leading-none">Portfólio de <br /><span className="text-berti-gold">Obras.</span></h2>
-                        <p className="text-xl text-gray-500 max-w-2xl font-light leading-relaxed">
-                          Condução técnica e execução de projetos que exigem precisão. Em cada entrega, refletimos nosso compromisso com o resultado final.
-                        </p>
-                      </header>
-                      
-                      {projectsLoading ? <LoadingSpinner /> : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24">
-                          {projects.map((p, idx) => (
-                            <ProjectCard key={p.id} project={p} onClick={() => handleProjectClick(p)} idx={idx} />
-                          ))}
+          <main className="pt-0">
+            <AnimatePresence mode="wait">
+              <motion.div key={location.pathname} className="w-full">
+                <Routes location={location}>
+                  <Route path="/" element={
+                    <PageTransition>
+                      <InstitutionalLanding 
+                        sections={{ hero: heroRef, pos: posRef, portfolio: portfolioRef }}
+                        projects={projects}
+                        onProjectClick={handleProjectClick}
+                        testimonials={testimonials} 
+                        loading={testimonialsLoading} 
+                        concepts={concepts.map(c => c.url)}
+                      />
+                    </PageTransition>
+                  } />
+                  <Route path="/jornada" element={
+                    <PageTransition>
+                      <ClientJourneyPage images={journeyImages} />
+                    </PageTransition>
+                  } />
+                  
+                  <Route path="/portfolio" element={
+                    <PageTransition>
+                      <section className="bg-white py-40 px-6 md:px-12">
+                        <div className="max-w-7xl mx-auto">
+                          <header className="mb-32">
+                            <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.5em] mb-10">Portfólio Berti</div>
+                            <h2 className="text-6xl md:text-9xl mb-12 font-extrabold tracking-tightest leading-none">Portfólio de <br /><span className="text-berti-gold">Obras.</span></h2>
+                            <p className="text-xl text-gray-500 max-w-2xl font-light leading-relaxed">
+                              Condução técnica e execução de projetos que exigem precisão. Em cada entrega, refletimos nosso compromisso com o resultado final.
+                            </p>
+                          </header>
+                          
+                          {projectsLoading ? <LoadingSpinner /> : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-24">
+                              {projects.map((p, idx) => (
+                                <ProjectCard key={p.id} project={p} onClick={() => handleProjectClick(p)} idx={idx} />
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </section>
-                </motion.div>
-              } />
+                      </section>
+                    </PageTransition>
+                  } />
 
-              <Route path="/portfolio/:projectId" element={
-                <ProjectDetailWrapper projects={projects} onBack={() => navigate('/portfolio')} />
-              } />
+                  <Route path="/portfolio/:projectId" element={
+                    <PageTransition>
+                      <ProjectDetailWrapper projects={projects} onBack={() => navigate('/portfolio')} />
+                    </PageTransition>
+                  } />
 
-              <Route path="/admin" element={
-                <div className="min-h-screen bg-berti-light/50 flex flex-col justify-center items-center py-24">
-                  {!user ? <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : isAdmin ? <AdminDashboard projects={projects} testimonials={testimonials} concepts={concepts} journeyImages={journeyImages} onLogout={() => signOut(auth)} onViewSite={() => navigate('/')} /> : <NoPermission user={user} onLogout={() => signOut(auth)} />}
-                </div>
-              } />
-            </Routes>
+                  <Route path="/admin" element={
+                    <PageTransition>
+                      <div className="min-h-screen bg-berti-light/50 flex flex-col justify-center items-center py-24">
+                        {!user ? <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : isAdmin ? <AdminDashboard projects={projects} testimonials={testimonials} concepts={concepts} journeyImages={journeyImages} onLogout={() => signOut(auth)} onViewSite={() => navigate('/')} /> : <ClientDashboard user={user} onLogout={() => signOut(auth)} />}
+                      </div>
+                    </PageTransition>
+                  } />
+                </Routes>
+              </motion.div>
+            </AnimatePresence>
           </main>
 
           <Footer onHome={() => navigate('/')} />
