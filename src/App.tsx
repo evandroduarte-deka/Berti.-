@@ -27,7 +27,13 @@ import {
   PlusCircle,
   LayoutGrid,
   Image as ImageIcon,
-  Edit
+  Edit,
+  Calculator,
+  HardHat,
+  FileText,
+  Receipt,
+  Scale,
+  Target
 } from 'lucide-react';
 import Masonry from 'react-masonry-css';
 import { 
@@ -373,7 +379,7 @@ const Footer = ({ onHome }: { onHome: (s: any) => void }) => (
         <div className="md:col-span-3 space-y-10">
           <h4 className="text-berti-gold text-[10px] font-bold uppercase tracking-widest">Digital</h4>
           <div className="flex gap-6">
-            <a href="https://instagram.com/bertiengenharia" target="_blank" rel="noreferrer" className="p-3 border border-white/10 text-white/30 hover:text-berti-gold hover:border-berti-gold transition-all duration-500">
+            <a href="https://instagram.com/construtora.berti" target="_blank" rel="noreferrer" className="p-3 border border-white/10 text-white/30 hover:text-berti-gold hover:border-berti-gold transition-all duration-500">
                <Instagram size={20} />
             </a>
           </div>
@@ -562,16 +568,18 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
           <div className="lg:w-1/2 w-full">
             <div className="bg-berti-light border border-gray-200 p-16 space-y-10">
               {[
-                "Orçamento estruturado por etapa construtiva",
-                "Acompanhamento técnico e fiscal rigoroso",
-                "Relatórios detalhados com fotos e medições",
-                "Auditoria e organização de notas fiscais",
-                "Equalização e coordenação de cotações",
-                "Decisão estratégica guiada por dados"
+                { label: "Orçamento estruturado por etapa construtiva", icon: Calculator },
+                { label: "Acompanhamento técnico e fiscal rigoroso", icon: HardHat },
+                { label: "Relatórios detalhados com fotos e medições", icon: FileText },
+                { label: "Auditoria e organização de notas fiscais", icon: Receipt },
+                { label: "Equalização e coordenação de cotações", icon: Scale },
+                { label: "Decisão estratégica guiada por dados", icon: Target }
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-8 group">
-                  <div className="w-12 h-px bg-berti-gold/40 group-hover:w-16 group-hover:bg-berti-gold transition-all duration-500"></div>
-                  <div className="text-gray-700 font-medium group-hover:text-berti-ink transition-colors">{item}</div>
+                <div key={i} className="flex items-center gap-6 group">
+                  <div className="w-10 h-10 rounded shadow-sm bg-berti-gold/10 flex items-center justify-center shrink-0 group-hover:bg-berti-gold/20 transition-colors">
+                    <item.icon size={18} className="text-berti-gold-dark" />
+                  </div>
+                  <div className="text-gray-700 font-medium group-hover:text-berti-ink transition-colors leading-snug">{item.label}</div>
                 </div>
               ))}
             </div>
