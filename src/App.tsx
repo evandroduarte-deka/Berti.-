@@ -26,8 +26,10 @@ import {
   ArrowUpRight,
   PlusCircle,
   LayoutGrid,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Edit
 } from 'lucide-react';
+import Masonry from 'react-masonry-css';
 import { 
   collection, 
   query, 
@@ -36,6 +38,7 @@ import {
   addDoc, 
   deleteDoc, 
   setDoc,
+  updateDoc,
   doc, 
   Timestamp,
   getDoc,
@@ -133,15 +136,15 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => window.location.href = `https://wa.me/5541991836651`}
-              className={`hidden lg:flex px-8 py-3.5 bg-berti-gold text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-berti-dark transition-all items-center shadow-lg ${isScrolled ? 'scale-90' : 'scale-100'}`}
+              className={`hidden lg:flex px-8 py-3.5 bg-berti-gold text-berti-ink text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-berti-dark hover:text-white transition-all items-center shadow-lg ${isScrolled ? 'scale-90' : 'scale-100'}`}
             >
               Solicitar Orçamento
             </button>
             <button 
               onClick={onAdminClick}
-              className={`px-5 md:px-7 py-3.5 border border-gray-200 text-berti-ink text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-gray-50 flex items-center gap-2 transition-all ${isScrolled ? 'scale-90' : 'scale-100'}`}
+              className={`px-5 md:px-7 py-3.5 bg-berti-ink text-white hover:bg-berti-dark text-[11px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 transition-all ${isScrolled ? 'scale-90' : 'scale-100'} group`}
             >
-              <Lock size={12} className="text-berti-gold" /> <span className="hidden sm:inline">Portal</span>
+              <Lock size={12} className="text-berti-gold group-hover:text-white transition-colors" /> <span className="hidden sm:inline">Área do Cliente</span>
             </button>
 
             {/* Mobile Menu Toggle */}
@@ -206,9 +209,9 @@ const Navbar = ({ onAdminClick }: { onAdminClick: () => void }) => {
                     setIsMobileMenuOpen(false);
                     onAdminClick();
                   }}
-                  className="w-full py-5 bg-berti-dark text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-berti-sage transition-all flex items-center justify-center gap-3"
+                  className="w-full py-5 bg-berti-ink text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-berti-dark transition-all flex items-center justify-center gap-3 group"
                 >
-                  <Lock size={12} className="text-berti-gold" /> Portal do Cliente
+                  <Lock size={12} className="text-berti-gold group-hover:text-white transition-colors" /> Área do Cliente
                 </button>
               </div>
             </div>
@@ -264,17 +267,18 @@ const ParallaxImage = ({ src, alt, className }: { src: string; alt: string; clas
   );
 };
 
-const HeroBackground = ({ src, alt }: { src: string; alt: string }) => {
+const HeroBackground = ({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) => {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 200]);
 
   return (
     <motion.img 
-      initial={{ scale: 1.1, opacity: 0 }}
+      initial={{ scale: 1.1, opacity: priority ? 1 : 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ duration: 2, ease: "easeOut" }}
       src={src}
-      loading="lazy"
+      loading={priority ? undefined : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
       style={{ y }}
       className="w-full h-full object-cover saturate-110 contrast-105"
       alt={alt}
@@ -310,7 +314,7 @@ const ConceptGallery = ({ photos }: { photos: string[] }) => {
   return (
     <div className="w-full relative py-20 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 md:px-12 mb-16">
-        <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-4">Galeria Conceito</div>
+        <div className="text-berti-gold-dark text-[10px] font-bold uppercase tracking-[0.5em] mb-4">Galeria Conceito</div>
         <h3 className="text-4xl md:text-5xl font-display italic text-berti-ink">Da fundação ao acabamento.</h3>
       </div>
       
@@ -377,20 +381,20 @@ const Footer = ({ onHome }: { onHome: (s: any) => void }) => (
       </div>
     </div>
     
-    <div className="max-w-7xl mx-auto pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 text-white/40 text-[9px] uppercase tracking-[0.2em] font-medium">
+    <div className="max-w-7xl mx-auto pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-8 text-white/60 text-[9px] uppercase tracking-[0.2em] font-medium">
       <div className="space-y-3">
-        <div className="text-white/60 font-bold tracking-[0.3em]">BERTI CONSTRUTORA LTDA</div>
+        <div className="text-white/80 font-bold tracking-[0.3em]">BERTI CONSTRUTORA LTDA</div>
         <div className="flex flex-col gap-1">
           <div>CNPJ: 59.622.624/0001-93</div>
-          <div className="text-[10px] normal-case tracking-normal text-white/50">Rua Mateus Leme, 1970 — Centro Cívico</div>
-          <div className="text-[10px] normal-case tracking-normal text-white/50">Curitiba/PR — CEP 80.530-010</div>
+          <div className="text-[10px] normal-case tracking-normal text-white/70">Rua Mateus Leme, 1970 — Centro Cívico</div>
+          <div className="text-[10px] normal-case tracking-normal text-white/70">Curitiba/PR — CEP 80.530-010</div>
         </div>
       </div>
       <div className="flex flex-col md:items-end gap-2 text-right">
         <div className="flex gap-8">
            <span>Curitiba | Paraná</span>
         </div>
-        <div className="opacity-50 text-[8px] mt-2">© {new Date().getFullYear()} Todos os direitos reservados.</div>
+        <div className="text-white/70 text-[8px] mt-2">© {new Date().getFullYear()} Todos os direitos reservados.</div>
       </div>
     </div>
   </footer>
@@ -405,8 +409,9 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
       <section ref={sections.hero} className="relative min-h-[100vh] flex flex-col items-center justify-end overflow-hidden pb-24 md:pb-32">
         <div className="absolute inset-0 z-0">
           <HeroBackground 
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" 
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1440&auto=format&fit=crop" 
             alt="Arquitetura de Alto Padrão Berti" 
+            priority={true}
           />
           <div className="absolute inset-0 bg-berti-ink/40" />
           <div className="absolute inset-0 bg-gradient-to-t from-berti-ink via-transparent to-transparent" />
@@ -440,7 +445,7 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
             >
               <button 
                 onClick={() => window.location.href = `https://wa.me/5541991836651`}
-                className="flex-1 px-10 py-5 bg-berti-gold text-white font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-white hover:text-berti-ink transition-all duration-300 shadow-xl"
+                className="flex-1 px-10 py-5 bg-berti-gold text-berti-ink font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-white transition-all duration-300 shadow-xl"
               >
                 Falar no Whatsapp
               </button>
@@ -474,7 +479,7 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
             <div className="lg:col-span-5 sticky top-32">
-              <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-8">Processo de Gestão</div>
+              <div className="text-berti-gold-dark text-xs font-bold uppercase tracking-[0.4em] mb-8">Processo de Gestão</div>
               <h2 className="text-4xl md:text-5xl lg:text-6xl mb-10 leading-[1] tracking-tight">Como a Berti <br />conduz seu projeto</h2>
               <p className="text-xl text-gray-800 leading-relaxed font-light mt-6">
                 Toda obra segue etapas. <br />
@@ -499,7 +504,7 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
                 <div key={i} className="group border border-gray-100 bg-white p-8 hover:border-berti-gold/30 hover:shadow-lg transition-all cursor-default relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-[0.02] text-8xl font-black group-hover:text-berti-gold transition-colors">{item.step}</div>
                   <div className="flex flex-col gap-4 relative z-10">
-                    <div className="text-berti-gold font-display font-black text-2xl">{item.step}</div>
+                    <div className="text-berti-gold-dark font-display font-black text-2xl">{item.step}</div>
                     <h3 className="text-2xl font-bold tracking-tight text-berti-ink pr-12">{item.title}</h3>
                     <p className="text-gray-500 leading-relaxed font-light">{item.desc}</p>
                   </div>
@@ -523,7 +528,7 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
                 </div>
              </div>
              <div className="md:col-span-8">
-                <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-12">Nossa Atuação</div>
+                <div className="text-berti-gold-dark text-xs font-bold uppercase tracking-[0.4em] mb-12">Nossa Atuação</div>
                 <h2 className="text-4xl md:text-5xl lg:text-6xl mb-12 leading-[1.1] tracking-tight text-berti-ink">A maioria das obras perde o controle porque não existe condução técnica clara.</h2>
                 <div className="space-y-8">
                   <p className="text-xl text-gray-600 font-light leading-relaxed">
@@ -545,8 +550,8 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
         <div className="absolute top-0 right-0 p-32 opacity-[0.02] text-[25rem] font-black leading-none pointer-events-none select-none uppercase -translate-y-1/4 translate-x-1/4 text-berti-ink">Trust</div>
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row gap-24 items-center relative z-10">
           <div className="lg:w-1/2">
-            <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-12">Transparência Total</div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl mb-10 leading-[1] font-black text-berti-ink tracking-tight">Sem margem escondida. <br /><span className="text-gray-400 font-light italic font-serif">Sem ruído.</span></h2>
+            <div className="text-berti-gold-dark text-xs font-bold uppercase tracking-[0.4em] mb-12">Transparência Total</div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl mb-10 leading-[1] font-black text-berti-ink tracking-tight">Sem margem escondida. <br /><span className="text-gray-500 font-light italic font-serif">Sem ruído.</span></h2>
             <p className="text-xl text-gray-600 mb-10 font-light leading-relaxed max-w-xl">
               Você sabe exatamente para onde está indo cada decisão e cada investimento.
             </p>
@@ -633,11 +638,11 @@ const InstitutionalLanding = ({ sections, projects, onProjectClick, testimonials
         <div className="max-w-7xl mx-auto px-6 md:px-12">
            <div className="flex flex-col lg:flex-row gap-24 items-center justify-between">
               <div className="max-w-3xl">
-                 <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.4em] mb-12 flex items-center gap-6">
-                    <span className="w-16 h-px bg-berti-gold"></span>
+                 <div className="text-berti-gold-dark text-xs font-bold uppercase tracking-[0.4em] mb-12 flex items-center gap-6">
+                    <span className="w-16 h-px bg-berti-gold-dark"></span>
                     Próximo Passo
                  </div>
-                 <h2 className="text-5xl md:text-6xl lg:text-7xl leading-[1] font-bold tracking-tight mb-12 text-berti-ink">Envie seu projeto. <br /><span className="text-berti-gold italic font-serif font-light">A Berti analisa.</span></h2>
+                 <h2 className="text-5xl md:text-6xl lg:text-7xl leading-[1] font-bold tracking-tight mb-12 text-berti-ink">Envie seu projeto. <br /><span className="text-berti-gold-dark italic font-serif font-light">A Berti analisa.</span></h2>
                  <p className="text-xl text-gray-700 font-light leading-relaxed mb-6">
                    O próximo passo para uma obra organizada e previsível é uma análise técnica clara.
                  </p>
@@ -712,75 +717,181 @@ const ProjectCard = ({ project, onClick, idx }: any) => (
   </motion.div>
 );
 
-const ProjectDetail = ({ project, onBack }: any) => (
-  <div className="bg-white min-h-screen">
-    <div className="relative h-[95vh] bg-berti-dark overflow-hidden">
-      <ParallaxImage 
-        src={project.photos[0]} 
-        className="w-full h-full object-cover opacity-80 saturate-125 contrast-110"
-        alt={project.title}
-      />
-      <div className="absolute inset-0 flex items-center justify-center text-center p-6 bg-gradient-to-t from-berti-dark/90 via-transparent to-transparent">
-        <div className="max-w-5xl">
-          <button 
-            onClick={onBack}
-            className="text-white text-[10px] font-bold uppercase tracking-[0.5em] mb-16 flex items-center justify-center gap-3 mx-auto hover:text-berti-gold transition-all"
-          >
-            <ArrowLeft size={16} className="text-berti-gold" /> Voltar ao Portfólio
-          </button>
-          <h2 className="text-white text-6xl md:text-[8rem] leading-[0.8] tracking-tightest mb-12 font-extrabold italic drop-shadow-2xl">
-            {project.title}
-          </h2>
-          <div className="flex flex-wrap justify-center gap-6">
-            {project.area && <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white border border-white/30 px-10 py-5 bg-white/10 backdrop-blur-md shadow-2xl">{project.area}</span>}
-            {project.system && <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white border border-white/30 px-10 py-5 bg-white/10 backdrop-blur-md shadow-2xl">{project.system}</span>}
-          </div>
-        </div>
-      </div>
-    </div>
+const ProjectDetail = ({ project, onBack }: any) => {
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const galleryImages = project.photos ? project.photos.slice(1) : [];
 
-    <div className="max-w-7xl mx-auto px-6 md:px-16 py-40">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-32 items-start">
-        <div className="lg:col-span-7 space-y-32">
-          <div className="space-y-12">
-            <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.5em]">Resumo Executivo</div>
-            <p className="text-4xl md:text-5xl text-berti-ink leading-[1.2] font-light italic opacity-80">
-              "{project.description}"
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-12">
-            {project.photos.slice(1).map((url: string, i: number) => (
-              <div key={i} className="aspect-video overflow-hidden bg-gray-50 border border-gray-100 shadow-sm relative group cursor-crosshair">
-                <ParallaxImage 
-                  src={url} 
-                  className="w-full h-full object-cover saturate-110 contrast-105" 
-                  alt="" 
-                />
-                <div className="absolute inset-0 bg-berti-dark/0 group-hover:bg-berti-dark/10 transition-colors duration-700 pointer-events-none" />
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="lg:col-span-5 sticky top-32 space-y-24">
-          <div className="bg-[#FAF9F6] p-16 border border-gray-100 shadow-sm">
-            <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-berti-gold mb-16">Especificações</div>
-            <div className="space-y-12">
-              <TechnicalItem icon={<MapPin size={22} />} label="Território" value={project.location} />
-              <TechnicalItem icon={<Calendar size={22} />} label="Ano de Entrega" value={project.year} />
-              <TechnicalItem icon={<Ruler size={22} />} label="Área Construída" value={project.area} />
-              <TechnicalItem icon={<Hammer size={22} />} label="Sistema Construtivo" value={project.system} />
+  return (
+    <div className="bg-[#FAF9F6] min-h-screen">
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center backdrop-blur-sm"
+          >
+            <button onClick={() => setLightboxIndex(null)} className="absolute top-6 right-6 text-white p-4 hover:bg-white/10 transition-colors z-50">
+              <X size={32} />
+            </button>
+            
+            {galleryImages.length > 1 && (
+              <>
+                <button onClick={() => setLightboxIndex(lightboxIndex > 0 ? lightboxIndex - 1 : galleryImages.length - 1)} className="absolute left-6 text-white p-4 hover:bg-white/10 transition-colors z-50">
+                  <ArrowLeft size={32} />
+                </button>
+                <button onClick={() => setLightboxIndex(lightboxIndex < galleryImages.length - 1 ? lightboxIndex + 1 : 0)} className="absolute right-6 text-white p-4 hover:bg-white/10 transition-colors z-50">
+                  <ArrowLeft size={32} className="rotate-180" />
+                </button>
+              </>
+            )}
+            
+            <div className="relative w-full h-full p-12 md:p-24 flex items-center justify-center">
+              <motion.img 
+                key={lightboxIndex}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                src={galleryImages[lightboxIndex]} 
+                className="max-w-full max-h-full object-contain"
+                alt="Obra"
+              />
+            </div>
+            
+            <div className="absolute bottom-10 text-white/50 text-[10px] uppercase tracking-[0.5em] font-bold">
+              {lightboxIndex + 1} / {galleryImages.length}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="relative h-[85vh] bg-berti-dark overflow-hidden">
+        {project.photos?.[0] && (
+          <ParallaxImage 
+            src={project.photos[0]} 
+            className="w-full h-full object-cover opacity-70 saturate-125 contrast-110"
+            alt={project.title}
+          />
+        )}
+        <div className="absolute inset-0 flex items-center justify-center text-center p-6 bg-gradient-to-t from-berti-dark/90 via-transparent to-transparent">
+          <div className="max-w-5xl mt-20">
+            <button 
+              onClick={onBack}
+              className="text-white text-[10px] font-bold uppercase tracking-[0.5em] mb-12 flex items-center justify-center gap-3 mx-auto hover:text-berti-gold transition-all"
+            >
+              <ArrowLeft size={16} className="text-berti-gold" /> Voltar ao Portfólio
+            </button>
+            <h2 className="text-white text-5xl md:text-[7rem] leading-[0.8] tracking-tightest mb-10 font-extrabold italic drop-shadow-2xl px-4">
+              {project.title}
+            </h2>
+            <div className="flex flex-wrap justify-center gap-4">
+              {project.area && <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-white border border-white/20 px-8 py-4 bg-white/5 backdrop-blur-sm">{project.area}</span>}
+              {project.system && <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-white border border-white/20 px-8 py-4 bg-white/5 backdrop-blur-sm">{project.system}</span>}
             </div>
           </div>
-          <div className="p-16 border border-berti-ink/10 text-center space-y-10">
-             <h4 className="font-display text-3xl font-extrabold italic">Conversão Directa</h4>
-             <p className="text-gray-400 text-sm leading-relaxed font-light">Solicite um estudo de viabilidade para seu projeto com os mesmos padrões de engenharia Berti.</p>
-             <button onClick={() => window.location.href="https://wa.me/5541991836651"} className="w-full py-6 bg-berti-dark text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-black transition-all">Iniciar Atendimento</button>
+        </div>
+      </div>
+
+      <div className="max-w-[1440px] mx-auto px-6 py-24 md:py-32">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
+          <div className="lg:col-span-7 space-y-16">
+            <div className="text-berti-gold-dark text-[10px] font-bold uppercase tracking-[0.5em] flex items-center gap-4">
+              <span className="w-8 h-px bg-berti-gold-dark"></span>
+              Resumo Executivo
+            </div>
+            <p className="text-xl md:text-3xl text-gray-700 leading-[1.6] font-light">
+              {project.description}
+            </p>
+          </div>
+          
+          <div className="lg:col-span-5 space-y-12">
+            <div className="bg-white p-12 border border-berti-ink/10 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-berti-slate/5 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-150 duration-700" />
+              <div className="text-[10px] font-bold uppercase tracking-[0.5em] text-berti-gold-dark mb-10">Especificações</div>
+              <div className="space-y-8 relative z-10">
+                <TechnicalItem icon={<MapPin size={20} />} label="Território" value={project.location} />
+                <TechnicalItem icon={<Calendar size={20} />} label="Ano de Entrega" value={project.year} />
+                <TechnicalItem icon={<Ruler size={20} />} label="Área Construída" value={project.area} />
+                <TechnicalItem icon={<Hammer size={20} />} label="Sistema Construtivo" value={project.system} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Storytelling Marquee for Execution Photos */}
+      {project.executionPhotos && project.executionPhotos.length > 0 && (
+        <div className="py-24 border-t border-gray-200 bg-white overflow-hidden">
+          <div className="max-w-[1440px] mx-auto px-6 mb-12 flex items-center justify-between">
+            <h3 className="text-xl md:text-3xl font-display font-extrabold tracking-tight text-berti-ink">Acompanhe cada etapa da obra</h3>
+            <div className="hidden md:block text-[9px] font-bold uppercase tracking-[0.4em] text-gray-400">Linha do Tempo Executiva</div>
+          </div>
+          <div className="relative flex overflow-x-hidden w-full">
+            <motion.div 
+              animate={{ x: ["0%", "-50%"] }} 
+              transition={{ repeat: Infinity, ease: "linear", duration: 180 }}
+              style={{ willChange: "transform", transform: "translateZ(0)" }}
+              className="flex gap-4 w-max"
+            >
+              {[...project.executionPhotos, ...project.executionPhotos, ...project.executionPhotos, ...project.executionPhotos].map((url: string, i: number) => (
+                <div key={i} className="flex-none w-48 md:w-64 aspect-square overflow-hidden bg-gray-100">
+                  <img 
+                    src={url} 
+                    className="w-full h-full object-cover opacity-100 hover:scale-105 transition-all duration-700 pointer-events-none" 
+                    alt="Acompanhamento obra" 
+                  />
+                </div>
+              ))}
+            </motion.div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Gallery Masonry */}
+      {galleryImages.length > 0 && (
+        <div className="max-w-[1440px] mx-auto px-6 py-24 md:py-40">
+          <div className="text-[9px] font-bold uppercase tracking-[0.5em] text-gray-400 border-b border-gray-200 pb-6 mb-16 w-full flex justify-between items-center">
+            <span>Registro Fotográfico Oficial</span>
+            <span>{galleryImages.length} Imagens</span>
+          </div>
+          <Masonry
+            breakpointCols={{ default: 3, 1024: 2, 640: 1 }}
+            className="flex -ml-6 w-auto"
+            columnClassName="pl-6 bg-clip-padding"
+          >
+            {galleryImages.map((url: string, i: number) => (
+              <div key={i} onClick={() => setLightboxIndex(i)} className="mb-6 overflow-hidden bg-gray-50 shadow-sm relative group cursor-zoom-in">
+                <img 
+                  src={url} 
+                  className="w-full h-auto block object-cover contrast-105 transition-transform duration-[2000ms] group-hover:scale-[1.03]" 
+                  alt="" 
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 ring-1 ring-inset ring-black/5 pointer-events-none" />
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-500 pointer-events-none" />
+              </div>
+            ))}
+          </Masonry>
+        </div>
+      )}
+
+      {/* Direct Conversion Block */}
+      <div className="bg-berti-ink py-24 md:py-32">
+        <div className="max-w-[1440px] mx-auto px-6 text-center">
+            <h4 className="font-display text-4xl md:text-5xl font-extrabold italic text-white mb-6">Conversão Direta</h4>
+            <p className="text-gray-400 text-base md:text-lg leading-relaxed font-light mb-10 max-w-xl mx-auto">
+              Solicite um estudo de viabilidade para seu projeto com os mesmos padrões de engenharia Berti.
+            </p>
+            <button onClick={() => window.open('https://wa.me/5541991836651', '_blank')} className="inline-block py-6 px-12 bg-white text-berti-ink text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-berti-gold transition-colors">
+              Iniciar Atendimento
+            </button>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const TechnicalItem = ({ icon, label, value }: any) => (
   <div className="flex items-center gap-6 group">
@@ -793,20 +904,22 @@ const TechnicalItem = ({ icon, label, value }: any) => (
 );
 
 const AdminLogin = ({ onLogin, onBack }: any) => (
-  <div className="bg-white p-16 max-w-sm w-full shadow-2xl text-center border-t-4 border-berti-gold">
-    <div className="font-display text-5xl mb-8">Portal</div>
-    <p className="text-gray-500 text-[10px] mb-12 uppercase tracking-[0.2em] leading-relaxed font-bold">
-      Bem-vindo ao Portal do Cliente e Gestão Berti. Identifique-se para acessar.
+  <div className="bg-berti-ink p-16 max-w-md w-full shadow-2xl shadow-berti-ink/50 text-center relative border border-white/5">
+    <div className="absolute top-0 left-0 w-full h-1 bg-berti-gold"></div>
+    <div className="text-berti-gold mb-8"><Lock size={40} className="mx-auto" strokeWidth={1.5} /></div>
+    <div className="font-display text-4xl mb-4 text-white">Área do Cliente</div>
+    <p className="text-white/50 text-[10px] mb-12 uppercase tracking-[0.2em] leading-relaxed font-bold">
+      Acesso exclusivo para clientes e engenharia
     </p>
     <button 
       onClick={onLogin}
-      className="w-full flex items-center justify-center gap-4 py-6 bg-berti-dark text-white rounded-sm hover:bg-berti-sage transition-all text-[11px] font-bold uppercase tracking-widest shadow-xl"
+      className="w-full flex items-center justify-center gap-4 py-6 bg-berti-gold text-berti-ink hover:bg-white hover:text-berti-ink transition-all text-[11px] font-bold uppercase tracking-widest"
     >
       Acessar com Google
     </button>
     <button 
       onClick={onBack}
-      className="mt-10 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-berti-gold transition-colors cursor-pointer"
+      className="mt-10 text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 hover:text-berti-gold transition-colors cursor-pointer w-full text-center"
     >
       Retornar ao Institucional
     </button>
@@ -816,12 +929,12 @@ const AdminLogin = ({ onLogin, onBack }: any) => (
 const ClientDashboard = ({ user, onLogout }: any) => (
   <div className="bg-white p-12 max-w-md w-full shadow-2xl text-center border-t-4 border-berti-gold">
     <div className="text-berti-gold mb-8"><Lock size={48} className="mx-auto" /></div>
-    <div className="font-display text-2xl mb-4">Portal do Cliente</div>
+    <div className="font-display text-2xl mb-4 text-berti-ink">Acesso Restrito</div>
     <p className="text-gray-500 text-sm mb-12 leading-relaxed font-light">
       Olá, <strong>{user.displayName || user.email}</strong>. <br /><br />
-      Seu ambiente exclusivo está sendo preparado. Em breve, você poderá acompanhar o status da sua obra e acessar todos os documentos diretamente por aqui.
+      Este e-mail não possui cadastro ou autorização ativa em nosso sistema. Caso você seja cliente, por favor, entre em contato conosco para solicitar a liberação do seu acesso à Área do Cliente.
     </p>
-    <button onClick={onLogout} className="text-berti-sage font-bold hover:underline text-xs uppercase tracking-widest">Sair da Conta</button>
+    <button onClick={onLogout} className="w-full py-4 bg-berti-dark text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-berti-sage transition-all">Sair da Conta</button>
   </div>
 );
 
@@ -876,6 +989,7 @@ const JourneyImageCard = ({ url, index, journeyImages }: any) => {
 const AdminDashboard = ({ projects, testimonials, onLogout, onViewSite, concepts, journeyImages }: any) => {
   const [activeTab, setActiveTab ] = useState<'projects' | 'testimonials' | 'concepts' | 'journey'>('projects');
   const [isAdding, setIsAdding] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   return (
     <div className="max-w-6xl w-full bg-white shadow-2xl min-h-[85vh] flex flex-col self-start mt-12 mx-auto overflow-hidden">
@@ -933,12 +1047,20 @@ const AdminDashboard = ({ projects, testimonials, onLogout, onViewSite, concepts
                   <div className="font-bold text-lg mb-2">{p.title}</div>
                   <div className="text-gray-400 text-[10px] flex items-center gap-2 uppercase font-bold tracking-widest"><MapPin size={10} /> {p.location}</div>
                 </div>
-                <button 
-                  onClick={async () => { if(confirm('Remover obra permanentemente?')) await deleteDoc(doc(db, 'projects', p.id)); }}
-                  className="absolute top-4 right-4 p-3 bg-white/90 text-red-500 shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <button 
+                    onClick={() => setEditingProject(p)}
+                    className="p-3 bg-white/90 text-berti-ink shadow-md hover:bg-berti-gold transition-all"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button 
+                    onClick={async () => { if(confirm('Remover obra permanentemente?')) await deleteDoc(doc(db, 'projects', p.id)); }}
+                    className="p-3 bg-white/90 text-red-500 shadow-md hover:bg-red-500 hover:text-white transition-all"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -1013,10 +1135,12 @@ const AdminDashboard = ({ projects, testimonials, onLogout, onViewSite, concepts
       </div>
 
       <AnimatePresence>
-        {isAdding && (
-          <Modal onClose={() => setIsAdding(false)}>
-            {activeTab === 'projects' ? (
-              <AddProjectForm onComplete={() => setIsAdding(false)} />
+        {(isAdding || editingProject) && (
+          <Modal onClose={() => { setIsAdding(false); setEditingProject(null); }}>
+            {(activeTab === 'projects' && isAdding) ? (
+              <ProjectForm onComplete={() => setIsAdding(false)} />
+            ) : editingProject ? (
+              <ProjectForm projectToEdit={editingProject} onComplete={() => setEditingProject(null)} />
             ) : activeTab === 'concepts' ? (
               <AddConceptForm onComplete={() => setIsAdding(false)} />
             ) : (
@@ -1061,19 +1185,32 @@ const uploadToImgbb = async (file: File): Promise<string> => {
   throw new Error('Erro ao fazer upload da imagem.');
 };
 
-const AddProjectForm = ({ onComplete }: any) => {
-  const [form, setForm] = useState({ title: '', location: '', year: '', duration: '', area: '', system: '', description: '', photos: [] as string[] });
+const ProjectForm = ({ onComplete, projectToEdit = null }: any) => {
+  const [form, setForm] = useState(
+    projectToEdit ? {
+      ...projectToEdit,
+      duration: projectToEdit.duration || '',
+      year: projectToEdit.year || '',
+      area: projectToEdit.area || '',
+      system: projectToEdit.system || '',
+      description: projectToEdit.description || '',
+    } : { title: '', location: '', year: '', duration: '', area: '', system: '', description: '', photos: [] as string[], executionPhotos: [] as string[] }
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleFileUpload = async (e: any) => {
+  const handleFileUpload = async (e: any, isExecution: boolean = false) => {
     const files = Array.from(e.target.files) as File[];
     if (files.length === 0) return;
     
     setIsUploading(true);
     try {
       const urls = await Promise.all(files.map(f => uploadToImgbb(f)));
-      setForm(prev => ({ ...prev, photos: [...prev.photos, ...urls] }));
+      if (isExecution) {
+        setForm((prev: any) => ({ ...prev, executionPhotos: [...(prev.executionPhotos || []), ...urls] }));
+      } else {
+        setForm((prev: any) => ({ ...prev, photos: [...prev.photos, ...urls] }));
+      }
     } catch (err) {
       alert('Houve um problema ao enviar algumas imagens.');
     } finally {
@@ -1081,18 +1218,56 @@ const AddProjectForm = ({ onComplete }: any) => {
     }
   };
 
-  const removePhoto = (index: number) => {
-    setForm(prev => ({ ...prev, photos: prev.photos.filter((_, i) => i !== index) }));
+  const removePhoto = (index: number, isExecution: boolean = false) => {
+    if (isExecution) {
+      setForm((prev: any) => ({ ...prev, executionPhotos: (prev.executionPhotos || []).filter((_: any, i: number) => i !== index) }));
+    } else {
+      setForm((prev: any) => ({ ...prev, photos: prev.photos.filter((_: any, i: number) => i !== index) }));
+    }
+  };
+
+  const removeAllPhotos = (isExecution: boolean = false) => {
+    if (isExecution) {
+      setForm((prev: any) => ({ ...prev, executionPhotos: [] }));
+    } else {
+      setForm((prev: any) => ({ ...prev, photos: [] }));
+    }
+  };
+
+  const setCover = (index: number) => {
+    setForm((prev: any) => {
+      const photos = [...prev.photos];
+      const cover = photos.splice(index, 1)[0];
+      photos.unshift(cover);
+      return { ...prev, photos };
+    });
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault(); setSubmitting(true);
-    try { await addDoc(collection(db, 'projects'), { ...form, createdAt: Timestamp.now() }); onComplete(); }
-    catch (err) { alert('Falha técnica ao salvar.'); } finally { setSubmitting(false); }
+    try { 
+      const dataToSave: any = { ...form };
+      delete dataToSave.id;
+      
+      // Clean up any undefined values
+      Object.keys(dataToSave).forEach(key => {
+        if (dataToSave[key] === undefined) {
+          delete dataToSave[key];
+        }
+      });
+      
+      if (projectToEdit) {
+        await updateDoc(doc(db, 'projects', projectToEdit.id), { ...dataToSave, updatedAt: Timestamp.now() });
+      } else {
+        await addDoc(collection(db, 'projects'), { ...dataToSave, createdAt: Timestamp.now() }); 
+      }
+      onComplete(); 
+    }
+    catch (err: any) { console.error(err); alert('Falha técnica ao salvar: ' + err?.message); } finally { setSubmitting(false); }
   };
   return (
     <form onSubmit={handleSubmit} className="space-y-10">
-      <h3 className="text-4xl font-display italic mb-12 uppercase tracking-tighter">Novos Dados Técnicos</h3>
+      <h3 className="text-4xl font-display italic mb-12 uppercase tracking-tighter">{projectToEdit ? 'Editar Dados Técnicos' : 'Novos Dados Técnicos'}</h3>
       <div className="space-y-6">
         <input required value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full p-5 bg-gray-50 border outline-none border-gray-100 focus:border-berti-sage font-bold" placeholder="Nome da Obra" />
         <div className="grid grid-cols-2 gap-4">
@@ -1105,13 +1280,18 @@ const AddProjectForm = ({ onComplete }: any) => {
           <input value={form.system} onChange={e => setForm({...form, system: e.target.value})} className="p-5 bg-gray-50 border outline-none" placeholder="Sistema" />
         </div>
         <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Fotos do Projeto</label>
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Fotos do Projeto</label>
+            {form.photos.length > 0 && (
+              <button type="button" onClick={() => removeAllPhotos(false)} className="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Limpar Todas</button>
+            )}
+          </div>
           <div className="p-5 bg-gray-50 border border-gray-100 outline-none">
             <input 
               type="file" 
               accept="image/*" 
               multiple 
-              onChange={handleFileUpload} 
+              onChange={(e) => handleFileUpload(e, false)} 
               disabled={isUploading}
               className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-berti-gold/10 file:text-berti-gold hover:file:bg-berti-gold/20"
             />
@@ -1119,10 +1299,43 @@ const AddProjectForm = ({ onComplete }: any) => {
           </div>
           {form.photos.length > 0 && (
             <div className="flex gap-4 flex-wrap mt-4">
-              {form.photos.map((url, idx) => (
+              {form.photos.map((url: string, idx: number) => (
                 <div key={idx} className="relative w-24 h-24 group">
-                  <img src={url} className="w-full h-full object-cover rounded" />
-                  <button type="button" onClick={() => removePhoto(idx)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                  <img src={url} className={`w-full h-full object-cover rounded ${idx === 0 ? 'border-2 border-berti-gold shadow-md' : 'opacity-80'}`} />
+                  {idx === 0 && <span className="absolute top-1 left-1 bg-berti-gold text-berti-ink text-[9px] font-bold px-1 rounded shadow-sm">CAPA</span>}
+                  <button type="button" onClick={() => removePhoto(idx, false)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                  {idx !== 0 && (
+                    <button type="button" onClick={() => setCover(idx)} className="absolute bottom-1 left-1 bg-berti-ink text-white text-[9px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">Definir Capa</button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="space-y-3 mt-6">
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Fotos da Execução (Storytelling)</label>
+            {(form.executionPhotos && form.executionPhotos.length > 0) && (
+              <button type="button" onClick={() => removeAllPhotos(true)} className="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Limpar Todas</button>
+            )}
+          </div>
+          <div className="p-5 bg-gray-50 border border-gray-100 outline-none">
+            <input 
+              type="file" 
+              accept="image/*" 
+              multiple 
+              onChange={(e) => handleFileUpload(e, true)} 
+              disabled={isUploading}
+              className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-berti-gold/10 file:text-berti-gold hover:file:bg-berti-gold/20"
+            />
+            {isUploading && <span className="text-xs text-gray-500 ml-2 animate-pulse">Enviando...</span>}
+          </div>
+          {(form.executionPhotos && form.executionPhotos.length > 0) && (
+            <div className="flex gap-4 flex-wrap mt-4">
+              {form.executionPhotos.map((url: string, idx: number) => (
+                <div key={idx} className="relative w-24 h-24 group">
+                  <img src={url} className="w-full h-full object-cover rounded opacity-80" />
+                  <button type="button" onClick={() => removePhoto(idx, true)} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
                 </div>
               ))}
             </div>
@@ -1130,7 +1343,12 @@ const AddProjectForm = ({ onComplete }: any) => {
         </div>
         <textarea rows={4} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full p-5 bg-gray-50 border outline-none border-gray-100 focus:border-berti-sage" placeholder="Descrição técnica da obra" />
       </div>
-      <button disabled={submitting || isUploading} type="submit" className="w-full py-6 bg-berti-dark text-white font-bold uppercase tracking-widest hover:bg-berti-sage transition-all">Publicar no Portfólio</button>
+      <div className="flex gap-4">
+        {projectToEdit && (
+          <button type="button" onClick={() => onComplete()} className="flex-1 py-6 bg-gray-100 text-berti-ink font-bold uppercase tracking-widest hover:bg-gray-200 transition-all">Cancelar</button>
+        )}
+        <button disabled={submitting || isUploading} type="submit" className="w-full py-6 bg-berti-dark text-white font-bold uppercase tracking-widest hover:bg-berti-sage transition-all">{projectToEdit ? 'Atualizar Obra' : 'Publicar no Portfólio'}</button>
+      </div>
     </form>
   );
 };
@@ -1159,6 +1377,10 @@ const AddConceptForm = ({ onComplete }: any) => {
     setPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
+  const removeAllPhotos = () => {
+    setPhotos([]);
+  };
+
   const handleSubmit = async (e: any) => {
     e.preventDefault(); 
     if (photos.length === 0) return;
@@ -1180,7 +1402,12 @@ const AddConceptForm = ({ onComplete }: any) => {
       <p className="text-gray-500 text-sm mb-6">Estas fotos aparecerão no carrossel de background "Da fundação ao acabamento" na página inicial.</p>
       <div className="space-y-6">
         <div className="space-y-3">
-          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Imagens do Carrossel</label>
+          <div className="flex items-center justify-between">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Imagens do Carrossel</label>
+            {photos.length > 0 && (
+              <button type="button" onClick={removeAllPhotos} className="text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Limpar Todas</button>
+            )}
+          </div>
           <div className="p-5 bg-gray-50 border border-gray-100 outline-none">
             <input 
               type="file" 
@@ -1243,11 +1470,11 @@ const ClientJourneyPage = ({ images }: any) => {
   }, []);
 
   const defaultImages = [
-    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1440&auto=format&fit=crop"
   ];
   const displayImages = defaultImages.map((img, i) => (images && images[i]) ? images[i] : img);
   
@@ -1432,7 +1659,7 @@ const ClientJourneyPage = ({ images }: any) => {
                viewport={{ once: true }}
                className="text-center max-w-3xl mx-auto"
             >
-               <div className="text-berti-gold text-[10px] font-bold uppercase tracking-[0.5em] mb-6">SOLUÇÕES COMPLETAS</div>
+               <div className="text-berti-gold-dark text-[10px] font-bold uppercase tracking-[0.5em] mb-6">SOLUÇÕES COMPLETAS</div>
                <h2 className="text-5xl md:text-7xl font-display tracking-tight text-berti-ink mb-8">Nossos Serviços</h2>
                <p className="text-lg text-berti-ink/60 font-light leading-relaxed">
                   Oferecemos um escopo completo de gestão e execução para que você tenha total segurança em todas as etapas da construção.
@@ -1498,11 +1725,11 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [journeyImages, setJourneyImages] = useState<string[]>([
-    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop"
+    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=1440&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1440&auto=format&fit=crop"
   ]);
   const [loading, setLoading] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
@@ -1552,11 +1779,11 @@ export default function App() {
     });
     const unsubJourney = onSnapshot(doc(db, 'config', 'journey'), (docSnap) => {
       const defaultImages = [
-        "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=2070&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=2070&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1440&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1440&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=1440&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?q=80&w=1440&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=1440&auto=format&fit=crop"
       ];
       
       if (docSnap.exists() && docSnap.data()?.images) {
@@ -1583,7 +1810,7 @@ export default function App() {
       if (err.code === 'auth/popup-blocked') {
         alert('O popup de login foi bloqueado pelo seu navegador. Por favor, habilite popups para este site.');
       } else {
-        alert('Erro ao realizar login. Tente novamente ou use uma aba anônima.');
+        alert('Erro ao realizar login: ' + err.message + '\n\nVerifique se o domínio está autorizado no Firebase.');
       }
     }
   };
@@ -1659,8 +1886,8 @@ export default function App() {
                       <section className="bg-white py-40 px-6 md:px-12">
                         <div className="max-w-7xl mx-auto">
                           <header className="mb-32">
-                            <div className="text-berti-gold text-xs font-bold uppercase tracking-[0.5em] mb-10">Portfólio Berti</div>
-                            <h2 className="text-6xl md:text-9xl mb-12 font-extrabold tracking-tightest leading-none">Portfólio de <br /><span className="text-berti-gold">Obras.</span></h2>
+                            <div className="text-berti-gold-dark text-xs font-bold uppercase tracking-[0.5em] mb-10">Portfólio Berti</div>
+                            <h2 className="text-6xl md:text-9xl mb-12 font-extrabold tracking-tightest leading-none">Portfólio de <br /><span className="text-berti-gold-dark">Obras.</span></h2>
                             <p className="text-xl text-gray-500 max-w-2xl font-light leading-relaxed">
                               Condução técnica e execução de projetos que exigem precisão. Em cada entrega, refletimos nosso compromisso com o resultado final.
                             </p>
@@ -1686,8 +1913,11 @@ export default function App() {
 
                   <Route path="/admin" element={
                     <PageTransition>
-                      <div className="min-h-screen bg-berti-light/50 flex flex-col justify-center items-center py-24">
-                        {!user ? <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : isAdmin ? <AdminDashboard projects={projects} testimonials={testimonials} concepts={concepts} journeyImages={journeyImages} onLogout={() => signOut(auth)} onViewSite={() => navigate('/')} /> : <ClientDashboard user={user} onLogout={() => signOut(auth)} />}
+                      <div className={!user ? "min-h-screen bg-berti-ink flex flex-col justify-center items-center py-24 px-6 relative" : "min-h-screen bg-berti-light/50 flex flex-col justify-center items-center py-24 px-6"}>
+                        {!user && <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1440&auto=format&fit=crop')] bg-cover bg-center opacity-5"></div>}
+                        <div className="relative z-10 w-full flex justify-center">
+                          {!user ? <AdminLogin onLogin={handleLogin} onBack={() => navigate('/')} /> : isAdmin ? <AdminDashboard projects={projects} testimonials={testimonials} concepts={concepts} journeyImages={journeyImages} onLogout={() => signOut(auth)} onViewSite={() => navigate('/')} /> : <ClientDashboard user={user} onLogout={() => signOut(auth)} />}
+                        </div>
                       </div>
                     </PageTransition>
                   } />
